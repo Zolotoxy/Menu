@@ -35,126 +35,136 @@ namespace Menu
             //приветствие
             Console.WriteLine("Здравтсвуйте! " + notName);
 
-            while (start)
+            try
             {
-                //ввод команды, убираем пробелы
-                var input = (Console.ReadLine()??string.Empty).Trim();
-                //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
-                var cmd = input.Split(" ", 2);
+                while (start)
+                {
+                    //ввод команды, убираем пробелы
+                    var input = (Console.ReadLine() ?? string.Empty).Trim();
+                    //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
+                    var cmd = input.Split(" ", 2);
 
-                //авторизоваться
-                if (cmd[0] == "/start")
-                {
-                    Console.WriteLine("Введите ваше имя:");
-                    //ввод имени, убираем пробелы
-                    name = (Console.ReadLine()??string.Empty).Trim();
-                    //проверка пользователя на пустое имя
-                    Console.WriteLine(String.IsNullOrEmpty(name) ? "Некорректно введёно имя, пожалуйста попробуйте ещё раз." : "\nДобро пожаловать " + name + "!\n");
-                    //проверка пользователя на пустое имя и отображение команд после авторизации
-                    Console.WriteLine(String.IsNullOrEmpty(name) ? notName : "Уважаемый " + name + ", " + isName);
-                }
-                //получить инструкцию как пользоваться программой
-                else if (cmd[0] == "/help")
-                {
-                    Console.WriteLine(name + " Вот список команд:\n" +
-                          "/start: Авторизация, ввод имени пользователя.\n" +
-                          "/help: Отображает краткую справочную информацию о том, как пользоваться программой.\n" +
-                          "/info: Предоставляет информацию о версии программы и дате её создания.\n" +
-                          "/echo: Команда доступна после авторизации. При вводе этой команды с аргументом \"/echo Hello\" программа возвращает текст \"Hello\")\n" +
-                          "/addtask: Команда доступна после авторизации. Добавление задачи в список.\n" +
-                          "/showtasks: Команда доступна после авторизации. Показать задачи в списоке.\n" +
-                          "/removetask: Команда доступна после авторизации. Удалить задачу в списоке.\n" +
-                          "/exit: Выход из программы.\n");
-                }
-                //получить информацию о программе
-                else if (cmd[0] == "/info")
-                {
-                    Console.WriteLine(name + " Версия ПО: 1.0.5; Дата создания: 10.10.2026г.\n");
-                }
-                //отображение пользовательского сообщения после ввода команды "/echo"
-                else if (cmd[0] == "/echo")
-                {
-                    //ввывод аргументов после введённой команды
-                    Console.WriteLine(cmd[1]);
-                }
-                //добавить задачи в список
-                else if (cmd[0] == "/addtask")
-                {
-                    Console.WriteLine("Пожалуйста, введите описание задачи:");
-                    //ввод названия задачи, убираем пробелы
-                    task = (Console.ReadLine() ?? string.Empty).Trim();
-                    //проверка на пустое название задачи
-                    if (String.IsNullOrEmpty(task))
+                    //авторизоваться
+                    if (cmd[0] == "/start")
                     {
-                        Console.WriteLine("Некорректно введёно название задачи, пожалуйста попробуйте ещё раз.");
+                        Console.WriteLine("Введите ваше имя:");
+                        //ввод имени, убираем пробелы
+                        name = (Console.ReadLine() ?? string.Empty).Trim();
+                        //проверка пользователя на пустое имя
+                        Console.WriteLine(String.IsNullOrEmpty(name) ? "Некорректно введёно имя, пожалуйста попробуйте ещё раз." : "\nДобро пожаловать " + name + "!\n");
+                        //проверка пользователя на пустое имя и отображение команд после авторизации
+                        Console.WriteLine(String.IsNullOrEmpty(name) ? notName : "Уважаемый " + name + ", " + isName);
                     }
-                    else
+                    //получить инструкцию как пользоваться программой
+                    else if (cmd[0] == "/help")
                     {
-                        //добавляем задачу в список
-                        Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
-                        tasks.Add(task);
+                        Console.WriteLine(name + " Вот список команд:\n" +
+                              "/start: Авторизация, ввод имени пользователя.\n" +
+                              "/help: Отображает краткую справочную информацию о том, как пользоваться программой.\n" +
+                              "/info: Предоставляет информацию о версии программы и дате её создания.\n" +
+                              "/echo: Команда доступна после авторизации. При вводе этой команды с аргументом \"/echo Hello\" программа возвращает текст \"Hello\")\n" +
+                              "/addtask: Команда доступна после авторизации. Добавление задачи в список.\n" +
+                              "/showtasks: Команда доступна после авторизации. Показать задачи в списоке.\n" +
+                              "/removetask: Команда доступна после авторизации. Удалить задачу в списоке.\n" +
+                              "/exit: Выход из программы.\n");
                     }
-                }
-                //показать задачи из списка
-                else if (cmd[0] == "/showtasks")
-                {
-                    if (tasks.Count > 0)
+                    //получить информацию о программе
+                    else if (cmd[0] == "/info")
                     {
-                        var j = 0;
-                        //вывод циклом задач из списка
-                        for (int i = 0; i < tasks.Count; i++)
+                        Console.WriteLine(name + " Версия ПО: 1.0.5; Дата создания: 10.10.2026г.\n");
+                    }
+                    //отображение пользовательского сообщения после ввода команды "/echo"
+                    else if (cmd[0] == "/echo")
+                    {
+                        //ввывод аргументов после введённой команды
+                        Console.WriteLine(cmd[1]);
+                    }
+                    //добавить задачи в список
+                    else if (cmd[0] == "/addtask")
+                    {
+                        Console.WriteLine("Пожалуйста, введите описание задачи:");
+                        //ввод названия задачи, убираем пробелы
+                        task = (Console.ReadLine() ?? string.Empty).Trim();
+                        //проверка на пустое название задачи
+                        if (String.IsNullOrEmpty(task))
                         {
-                            Console.WriteLine($"{++j}. {tasks[i]}");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Ваш список задач пуст! Добавте задачи.");
-                    }
-                    
-                }
-                //удалить задачу из списка
-                else if (cmd[0] == "/removetask")
-                {
-                    //Проверка на наличие задач
-                    if (tasks.Count > 0)
-                    {
-                        Console.WriteLine("Вот ваш список задач:\n");
-                        var j = 0;
-                        //вывод циклом задач из списка
-                        for (int i = 0; i < tasks.Count; i++)
-                        {
-                            Console.WriteLine($"{++j}. {tasks[i]}");
-                        }
-
-                        Console.WriteLine("Введите номер задачи для удаления:\n");
-                        //переводим введёную задачу в int и проверяем на диапазон кол-во задач
-                        if (int.TryParse(Console.ReadLine(), out numberTask) && (numberTask > 0 && numberTask <= tasks.Count))
-                        {
-                            //удаляем задачу из списка
-                            Console.WriteLine($"Задача {tasks[numberTask -= 1]} удалена.");
-                            tasks.RemoveAt(numberTask);
+                            Console.WriteLine("Некорректно введёно название задачи, пожалуйста попробуйте ещё раз.");
                         }
                         else
                         {
-                            Console.WriteLine("Вы ввели некорректный номер задачи для удаления \" " +numberTask+ " \", ");
+                            //добавляем задачу в список
+                            Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
+                            tasks.Add(task);
                         }
                     }
+                    //показать задачи из списка
+                    else if (cmd[0] == "/showtasks")
+                    {
+                        if (tasks.Count > 0)
+                        {
+                            var j = 0;
+                            //вывод циклом задач из списка
+                            for (int i = 0; i < tasks.Count; i++)
+                            {
+                                Console.WriteLine($"{++j}. {tasks[i]}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Ваш список задач пуст! Добавте задачи.");
+                        }
+
+                    }
+                    //удалить задачу из списка
+                    else if (cmd[0] == "/removetask")
+                    {
+                        //Проверка на наличие задач
+                        if (tasks.Count > 0)
+                        {
+                            Console.WriteLine("Вот ваш список задач:\n");
+                            var j = 0;
+                            //вывод циклом задач из списка
+                            for (int i = 0; i < tasks.Count; i++)
+                            {
+                                Console.WriteLine($"{++j}. {tasks[i]}");
+                            }
+
+                            Console.WriteLine("Введите номер задачи для удаления:\n");
+                            //переводим введёную задачу в int и проверяем на диапазон кол-во задач
+                            if (int.TryParse(Console.ReadLine(), out numberTask) && (numberTask > 0 && numberTask <= tasks.Count))
+                            {
+                                //удаляем задачу из списка
+                                Console.WriteLine($"Задача {tasks[numberTask = -1]} удалена.");
+                                tasks.RemoveAt(numberTask);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Вы ввели некорректный номер задачи для удаления \" " + numberTask + " \", ");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Вам нечего удалить, ваш список задач пуст!");
+                        }
+                    }
+                    //выход пользователя из программы
+                    else if (cmd[0] == "/exit")
+                    {
+                        start = false;
+                    }
+                    //если ввёл неправильно команду
                     else
                     {
-                        Console.WriteLine("Вам нечего удалить, ваш список задач пуст!");
+                        Console.WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
                     }
                 }
-                //выход пользователя из программы
-                else if (cmd[0] == "/exit")
-                {
-                    start = false;
-                }
-                //если ввёл неправильно команду
-                else
-                {
-                    Console.WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + ' ' + ex.GetType());
+                Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
+                Console.WriteLine(ex.Message + ' ' + ex.InnerException);
+                //throw;
             }
         }
     }
