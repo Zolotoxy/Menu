@@ -35,9 +35,10 @@ namespace Menu
             //приветствие
             Console.WriteLine("Здравтсвуйте! " + notName);
 
-            try
+
+            while (start)
             {
-                while (start)
+                try
                 {
                     //ввод команды, убираем пробелы
                     var input = (Console.ReadLine() ?? string.Empty).Trim();
@@ -158,13 +159,13 @@ namespace Menu
                         Console.WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message + ' ' + ex.GetType());
-                Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
-                Console.WriteLine(ex.Message + ' ' + ex.InnerException);
-                //throw;
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + ' ' + ex.GetType());
+                    Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
+                    Console.WriteLine(ex.Message + ' ' + ex.InnerException);
+                    //throw;
+                }
             }
         }
     }
