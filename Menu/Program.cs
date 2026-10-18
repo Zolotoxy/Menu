@@ -19,13 +19,19 @@ namespace Menu
         static void Main(string[] args)
         {
             //флаг старта программы
-            var start = true;
-            //Список задач
-            var tasks = new List<string>();
+            var start = true; 
             //Описание одной задачи
             var task = "";
             //введённый номер задачи
             var numberTask = 0;
+            //максимальное количество задач
+            const int MAX_TASKS = 100;
+            //миниимальное количество задач
+            const int MIN_TASKS = 1;
+            //кол-во задач введённое пользователем
+            var inputCountTasks = 1;
+            //Список задач
+            var tasks = new List<string>();
             //введённое имя пользователя
             var name = "";
             //отображение команд без авторизации
@@ -48,6 +54,16 @@ namespace Menu
                     //авторизоваться
                     if (cmd[0] == "/start")
                     {
+                        Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
+                        
+                        if (int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS > 1 && MAX_TASKS <= 100))
+                        {
+                            ;
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Вы ввели недопустимое количество задач, пожалуйста попробуйте ещё раз.");
+                        }
                         Console.WriteLine("Введите ваше имя:");
                         //ввод имени, убираем пробелы
                         name = (Console.ReadLine() ?? string.Empty).Trim();
@@ -158,6 +174,10 @@ namespace Menu
                     {
                         Console.WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
                     }
+                }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine(ex.Message);
                 }
                 catch (Exception ex)
                 {
