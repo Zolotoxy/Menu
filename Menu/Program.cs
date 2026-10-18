@@ -56,11 +56,7 @@ namespace Menu
                     {
                         Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
                         
-                        if (int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS > 1 && MAX_TASKS <= 100))
-                        {
-                            ;
-                        }
-                        else
+                        if (!(int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS < inputCountTasks && MAX_TASKS >= inputCountTasks)))
                         {
                             throw new ArgumentException("Вы ввели недопустимое количество задач, пожалуйста попробуйте ещё раз.");
                         }
