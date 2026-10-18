@@ -7,12 +7,16 @@
       "RelativeMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|solutionrelative:menu\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|c:\\project\\git\\menu\\menu\\tasklengthlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|solutionrelative:menu\\tasklengthlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|c:\\project\\git\\menu\\menu\\dublicatetaskexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|solutionrelative:menu\\dublicatetaskexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|c:\\project\\git\\menu\\menu\\taskcountlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|solutionrelative:menu\\taskcountlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|c:\\project\\git\\menu\\menu\\tasklengthlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8C82F414-3204-80A3-4E65-548E42018F83}|Menu\\Menu.csproj|solutionrelative:menu\\tasklengthlimitexception.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,11 +26,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "DublicateTaskException.cs",
+              "DocumentMoniker": "C:\\Project\\Git\\Menu\\Menu\\DublicateTaskException.cs",
+              "RelativeDocumentMoniker": "Menu\\DublicateTaskException.cs",
+              "ToolTip": "C:\\Project\\Git\\Menu\\Menu\\DublicateTaskException.cs",
+              "RelativeToolTip": "Menu\\DublicateTaskException.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-18T13:03:57.053Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "TaskLengthLimitException.cs",
               "DocumentMoniker": "C:\\Project\\Git\\Menu\\Menu\\TaskLengthLimitException.cs",
               "RelativeDocumentMoniker": "Menu\\TaskLengthLimitException.cs",
@@ -45,7 +62,7 @@
               "RelativeDocumentMoniker": "Menu\\Program.cs",
               "ToolTip": "C:\\Project\\Git\\Menu\\Menu\\Program.cs*",
               "RelativeToolTip": "Menu\\Program.cs*",
-              "ViewState": "AgIAAIIAAAAAAAAAAAAgwJoAAACRAAAAAAAAAA==",
+              "ViewState": "AgIAAIgAAAAAAAAAAAAgwKAAAABXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-18T02:23:14.505Z",
               "EditorCaption": ""
@@ -58,7 +75,7 @@
               "RelativeDocumentMoniker": "Menu\\TaskCountLimitException.cs",
               "ToolTip": "C:\\Project\\Git\\Menu\\Menu\\TaskCountLimitException.cs",
               "RelativeToolTip": "Menu\\TaskCountLimitException.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAkAAAAPAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAgAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-10-18T02:31:10.133Z",
               "EditorCaption": ""

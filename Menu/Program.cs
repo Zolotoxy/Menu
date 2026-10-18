@@ -146,19 +146,27 @@ namespace Menu
                         {                            
                             if (tasks.Count >= inputCountTasks)
                             {
-                                throw new TaskCountLimitException("Превышено максимальное количество задач равное", inputCountTasks);
+                                throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {inputCountTasks}", inputCountTasks);
                             }
                             else
                             {
                                 if (task.Length >= inputLenghtTask)
                                 {
-                                    throw new TaskCountLimitException("Длинна задачи превышает максимально допустимое значение", inputLenghtTask);
+                                    throw new TaskLengthLimitException($"Длинна задачи {inputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", inputLenghtTask, MAX_LENGHT_TASK);
                                 }
                                 else
                                 {
-                                    tasks.Add(task);
-                                    //добавляем задачу в список
-                                    Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
+                                    if (tasks.Contains(task))
+                                    {
+                                        throw new DublicateTaskException($"Задача {task} уже существует", task);
+
+                                    }
+                                    else
+                                    {
+                                        tasks.Add(task);
+                                        //добавляем задачу в список
+                                        Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
+                                    }                                  
                                 }  
                             }
                         }
@@ -232,13 +240,17 @@ namespace Menu
                 {
                     Console.WriteLine(ex.Message + ": " + ex.TaskLenghtLimit);
                 }
-                //catch (Exception ex)
-                //{
-                //    Console.WriteLine(ex.Message + ' ' + ex.GetType());
-                //    Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
-                //    Console.WriteLine(ex.Message + ' ' + ex.InnerException);
-                //    //throw;
-                //}
+                catch (DublicateTaskException ex)
+                {
+                    Console.WriteLine(ex.Message + ": " + ex.Task);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + ' ' + ex.GetType());
+                    Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
+                    Console.WriteLine(ex.Message + ' ' + ex.InnerException);
+                    //throw;
+                }
             }
         }
     }
