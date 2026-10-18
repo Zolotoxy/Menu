@@ -19,17 +19,62 @@ namespace Menu
         static void Main(string[] args)
         {
             //флаг старта программы
-            var start = true; 
-            //Описание одной задачи
-            var task = "";
-            //введённый номер задачи
-            var numberTask = 0;
+            var start = true;
             //максимальное количество задач
             const int MAX_TASKS = 100;
             //миниимальное количество задач
             const int MIN_TASKS = 1;
+            //максимальное количество символов задачи
+            const int MAX_LENGHT_TASK = 100;
+            //миниимальное количество символов задачи
+            const int MIN_LENGHT_TASK = 1;
             //кол-во задач введённое пользователем
             var inputCountTasks = 1;
+            //введённая длина символов задачи
+            var inputLenghtTask = 1;
+            try
+            {
+                while (true)
+                {
+                    Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
+
+                    if (!(int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS < inputCountTasks && MAX_TASKS >= inputCountTasks)))
+                    {
+                        throw new ArgumentException("Вы ввели недопустимое количество задач, пожалуйста попробуйте ещё раз.");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                while (true)
+                {
+                    Console.WriteLine("Введите максимально допустимую длинну символов задачи от 1 до 100:");
+
+                    if (!(int.TryParse(Console.ReadLine(), out inputLenghtTask) && (MIN_TASKS < inputLenghtTask && MAX_TASKS >= inputLenghtTask)))
+                    {
+                        throw new ArgumentException("Вы ввели недопустимое количество символов задачи, пожалуйста попробуйте ещё раз.");
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            //catch (Exception)
+            //{
+
+            //    //throw;
+            //}
+            //Описание одной задачи
+            var task = "";
+            //введённый номер задачи
+            var numberTask = 0;
             //Список задач
             var tasks = new List<string>();
             //введённое имя пользователя
@@ -54,12 +99,6 @@ namespace Menu
                     //авторизоваться
                     if (cmd[0] == "/start")
                     {
-                        Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
-                        
-                        if (!(int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS < inputCountTasks && MAX_TASKS >= inputCountTasks)))
-                        {
-                            throw new ArgumentException("Вы ввели недопустимое количество задач, пожалуйста попробуйте ещё раз.");
-                        }
                         Console.WriteLine("Введите ваше имя:");
                         //ввод имени, убираем пробелы
                         name = (Console.ReadLine() ?? string.Empty).Trim();
@@ -104,10 +143,24 @@ namespace Menu
                             Console.WriteLine("Некорректно введёно название задачи, пожалуйста попробуйте ещё раз.");
                         }
                         else
-                        {
-                            //добавляем задачу в список
-                            Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
-                            tasks.Add(task);
+                        {                            
+                            if (tasks.Count >= inputCountTasks)
+                            {
+                                throw new TaskCountLimitException("Превышено максимальное количество задач равное", inputCountTasks);
+                            }
+                            else
+                            {
+                                if (task.Length >= inputLenghtTask)
+                                {
+                                    throw new TaskCountLimitException("Длинна задачи превышает максимально допустимое значение", inputLenghtTask);
+                                }
+                                else
+                                {
+                                    tasks.Add(task);
+                                    //добавляем задачу в список
+                                    Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
+                                }  
+                            }
                         }
                     }
                     //показать задачи из списка
@@ -171,17 +224,21 @@ namespace Menu
                         Console.WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
                     }
                 }
-                catch (ArgumentException ex)
+                catch (TaskCountLimitException ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.Message + ": " + ex.TaskCountLimit);
                 }
-                catch (Exception ex)
+                catch (TaskLengthLimitException ex)
                 {
-                    Console.WriteLine(ex.Message + ' ' + ex.GetType());
-                    Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
-                    Console.WriteLine(ex.Message + ' ' + ex.InnerException);
-                    //throw;
+                    Console.WriteLine(ex.Message + ": " + ex.TaskLenghtLimit);
                 }
+                //catch (Exception ex)
+                //{
+                //    Console.WriteLine(ex.Message + ' ' + ex.GetType());
+                //    Console.WriteLine(ex.Message + ' ' + ex.StackTrace);
+                //    Console.WriteLine(ex.Message + ' ' + ex.InnerException);
+                //    //throw;
+                //}
             }
         }
     }
