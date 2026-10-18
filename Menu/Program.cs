@@ -10,6 +10,7 @@
     программа возвращает введенный текст (в данном примере "Hello").
 6. Основной цикл программы: Программа продолжает ожидать ввод команды от пользователя, пока не будет введена команда /exit.
 */
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace Menu
@@ -65,7 +66,7 @@ namespace Menu
                 }
 
             }
-            
+
             //Описание одной задачи
             var task = "";
             //введённый номер задачи
@@ -81,13 +82,16 @@ namespace Menu
             //приветствие
             Console.WriteLine("Здравтсвуйте! " + notName);
 
-
+            //основной цикл выполнения программы
             while (start)
             {
                 try
                 {
                     //ввод команды, убираем пробелы
-                    var input = (Console.ReadLine() ?? string.Empty).Trim();
+                    //var input = (Console.ReadLine() ?? string.Empty).Trim();
+                    var input = Console.ReadLine();
+                    //проверяем
+                    ValidateString(input);
                     //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
                     var cmd = input.Split(" ", 2);
 
@@ -95,12 +99,12 @@ namespace Menu
                     if (cmd[0] == "/start")
                     {
                         Console.WriteLine("Введите ваше имя:");
-                        //ввод имени, убираем пробелы
-                        name = (Console.ReadLine() ?? string.Empty).Trim();
-                        //проверка пользователя на пустое имя
-                        Console.WriteLine(String.IsNullOrEmpty(name) ? "Некорректно введёно имя, пожалуйста попробуйте ещё раз." : "\nДобро пожаловать " + name + "!\n");
-                        //проверка пользователя на пустое имя и отображение команд после авторизации
-                        Console.WriteLine(String.IsNullOrEmpty(name) ? notName : "Уважаемый " + name + ", " + isName);
+                        //ввод имени
+                        name = Console.ReadLine();
+                        //Проверяем
+                        ValidateString(name);
+
+                        Console.WriteLine("\nДобро пожаловать " + name + "!\nУважаемый " + name + ", " + isName);
                     }
                     //получить инструкцию как пользоваться программой
                     else if (cmd[0] == "/help")
@@ -138,7 +142,7 @@ namespace Menu
                             Console.WriteLine("Некорректно введёно название задачи, пожалуйста попробуйте ещё раз.");
                         }
                         else
-                        {                            
+                        {
                             if (tasks.Count >= inputCountTasks)
                             {
                                 throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {inputCountTasks}", inputCountTasks);
@@ -161,8 +165,8 @@ namespace Menu
                                         tasks.Add(task);
                                         //добавляем задачу в список
                                         Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
-                                    }                                  
-                                }  
+                                    }
+                                }
                             }
                         }
                     }
@@ -239,6 +243,10 @@ namespace Menu
                 {
                     Console.WriteLine(ex.Message + ": " + ex.Task);
                 }
+                catch (ArgumentException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message + ' ' + ex.GetType());
@@ -248,6 +256,9 @@ namespace Menu
                 }
             }
         }
+        /// <summary>
+        /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
+        /// </summary>
         public static int ParseAndValidateInt(string? str, int min, int max)
         {
             if (!(int.TryParse(str, out int i) && (min < i && max >= i)))
@@ -257,6 +268,17 @@ namespace Menu
             else
             {
                 return i;
+            }
+        }
+        /// <summary>
+        /// Проверяем что строка не null не пустая и обрезаем пробелы
+        /// </summary>
+        public static void ValidateString(string? str)
+        {
+            str = (str ?? string.Empty).Trim();
+            if (String.IsNullOrEmpty(str))
+            {
+                throw new ArgumentException("Некорректно введёно поле, пожалуйста попробуйте ещё раз.");
             }
         }
     }
