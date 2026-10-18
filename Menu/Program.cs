@@ -32,45 +32,40 @@ namespace Menu
             var inputCountTasks = 1;
             //введённая длина символов задачи
             var inputLenghtTask = 1;
-            try
+            //разрешение проверки на кол-во задач
+            var isCount = true;
+            //разрешение проверки на кол-во символов
+            var isLenght = true;
+
+            while (true)
             {
-                while (true)
+                try
                 {
-                    Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
+                    if (isCount)
+                    {
+                        Console.WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
+                        var str = Console.ReadLine();
+                        inputCountTasks = ParseAndValidateInt(str, MIN_TASKS, MAX_TASKS);
+                        isCount = false;
+                    }
 
-                    if (!(int.TryParse(Console.ReadLine(), out inputCountTasks) && (MIN_TASKS < inputCountTasks && MAX_TASKS >= inputCountTasks)))
+                    if (isLenght)
                     {
-                        throw new ArgumentException("Вы ввели недопустимое количество задач, пожалуйста попробуйте ещё раз.");
+                        Console.WriteLine("Введите максимально допустимую длинну символов задачи от 1 до 100:");
+                        var str = Console.ReadLine();
+                        inputLenghtTask = ParseAndValidateInt(str, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
+                        isLenght = false;
                     }
-                    else
-                    {
-                        break;
-                    }
+
+                    break;
                 }
-                while (true)
+                catch (ArgumentException ex)
                 {
-                    Console.WriteLine("Введите максимально допустимую длинну символов задачи от 1 до 100:");
-
-                    if (!(int.TryParse(Console.ReadLine(), out inputLenghtTask) && (MIN_TASKS < inputLenghtTask && MAX_TASKS >= inputLenghtTask)))
-                    {
-                        throw new ArgumentException("Вы ввели недопустимое количество символов задачи, пожалуйста попробуйте ещё раз.");
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    Console.WriteLine(ex.Message);
                 }
+
             }
             
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            //catch (Exception)
-            //{
-
-            //    //throw;
-            //}
             //Описание одной задачи
             var task = "";
             //введённый номер задачи
@@ -251,6 +246,17 @@ namespace Menu
                     Console.WriteLine(ex.Message + ' ' + ex.InnerException);
                     //throw;
                 }
+            }
+        }
+        public static int ParseAndValidateInt(string? str, int min, int max)
+        {
+            if (!(int.TryParse(str, out int i) && (min < i && max >= i)))
+            {
+                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
+            }
+            else
+            {
+                return i;
             }
         }
     }
