@@ -87,8 +87,6 @@ namespace Menu
             {
                 try
                 {
-                    //ввод команды, убираем пробелы
-                    //var input = (Console.ReadLine() ?? string.Empty).Trim();
                     var input = Console.ReadLine();
                     //проверяем
                     ValidateString(input);
@@ -134,38 +132,34 @@ namespace Menu
                     else if (cmd[0] == "/addtask")
                     {
                         Console.WriteLine("Пожалуйста, введите описание задачи:");
-                        //ввод названия задачи, убираем пробелы
-                        task = (Console.ReadLine() ?? string.Empty).Trim();
-                        //проверка на пустое название задачи
-                        if (String.IsNullOrEmpty(task))
+                        task = Console.ReadLine();
+                        //Проверяем
+                        ValidateString(task);
+                        //Проверка на установленное количество задач
+                        if (tasks.Count >= inputCountTasks)
                         {
-                            Console.WriteLine("Некорректно введёно название задачи, пожалуйста попробуйте ещё раз.");
+                            throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {inputCountTasks}", inputCountTasks);
                         }
                         else
                         {
-                            if (tasks.Count >= inputCountTasks)
+                            //Проверка на установленную длинну задачи 
+                            if (task.Length >= inputLenghtTask)
                             {
-                                throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {inputCountTasks}", inputCountTasks);
+                                throw new TaskLengthLimitException($"Длинна задачи {inputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", inputLenghtTask, MAX_LENGHT_TASK);
                             }
                             else
                             {
-                                if (task.Length >= inputLenghtTask)
+                                //Проверка на дубликаты задач
+                                if (tasks.Contains(task))
                                 {
-                                    throw new TaskLengthLimitException($"Длинна задачи {inputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", inputLenghtTask, MAX_LENGHT_TASK);
+                                    throw new DublicateTaskException($"Задача {task} уже существует", task);
+
                                 }
                                 else
                                 {
-                                    if (tasks.Contains(task))
-                                    {
-                                        throw new DublicateTaskException($"Задача {task} уже существует", task);
-
-                                    }
-                                    else
-                                    {
-                                        tasks.Add(task);
-                                        //добавляем задачу в список
-                                        Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
-                                    }
+                                    tasks.Add(task);
+                                    //добавляем задачу в список
+                                    Console.WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
                                 }
                             }
                         }
@@ -192,7 +186,7 @@ namespace Menu
                     else if (cmd[0] == "/removetask")
                     {
                         //Проверка на наличие задач
-                        if (tasks.Count > 0)
+                        if (tasks.Count >= MIN_TASKS)
                         {
                             Console.WriteLine("Вот ваш список задач:\n");
                             var j = 0;
@@ -203,17 +197,11 @@ namespace Menu
                             }
 
                             Console.WriteLine("Введите номер задачи для удаления:\n");
-                            //переводим введёную задачу в int и проверяем на диапазон кол-во задач
-                            if (int.TryParse(Console.ReadLine(), out numberTask) && (numberTask > 0 && numberTask <= tasks.Count))
-                            {
-                                //удаляем задачу из списка
-                                Console.WriteLine($"Задача {tasks[numberTask = -1]} удалена.");
-                                tasks.RemoveAt(numberTask);
-                            }
-                            else
-                            {
-                                Console.WriteLine("Вы ввели некорректный номер задачи для удаления \" " + numberTask + " \", ");
-                            }
+                            var str = Console.ReadLine();
+                            numberTask = ParseAndValidateInt(str, 0, inputCountTasks);
+                            //удаляем задачу из списка
+                            Console.WriteLine($"Задача {tasks[numberTask -= 1]} удалена.");
+                            tasks.RemoveAt(numberTask);
                         }
                         else
                         {
@@ -261,13 +249,13 @@ namespace Menu
         /// </summary>
         public static int ParseAndValidateInt(string? str, int min, int max)
         {
-            if (!(int.TryParse(str, out int i) && (min < i && max >= i)))
+            if (int.TryParse(str, out int i) && (i > min && i <= max))
             {
-                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
+                return i;
             }
             else
             {
-                return i;
+                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
             }
         }
         /// <summary>
