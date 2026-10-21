@@ -30,6 +30,7 @@ namespace Menu
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit\n";
         //отображение команд после авторизации
         const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n";
+
         static void Main(string[] args)
         {
             //флаг старта программы
@@ -40,87 +41,20 @@ namespace Menu
             var inputLenghtTask = 0;
             //Описание одной задачи
             var task = "";
-            //введённый номер задачи
-            var numberTask = 0;
             //введённое имя пользователя
             var name = "";
             //Список задач
             var tasks = new List<string>();
 
-
             while (start)
             {
 
                 try
-                {
-                    if (inputCountTasks == 0)
-                    {
-                        WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
-                        var str = ReadLine();
-                        inputCountTasks = ParseAndValidateInt(str, MIN_TASKS, MAX_TASKS);
-                    }
+                {   //Инициализация параметров при старте
+                    InputAndInutialyzeParametrs(ref inputCountTasks, ref inputLenghtTask, NOT_NAME, MIN_TASKS, MAX_TASKS, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
 
-                    if (inputLenghtTask == 0)
-                    {
-                        WriteLine("Введите максимально допустимую длинну символов задачи от 1 до 100:");
-                        var str = ReadLine();
-                        inputLenghtTask = ParseAndValidateInt(str, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
-
-                        //приветствие
-                        WriteLine("Здравтсвуйте! " + NOT_NAME);
-                    }
-
-                    var input = ReadLine();
-                    //проверяем
-                    ValidateString(input);
-                    //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
-                    var cmd = input.Split(" ", 2);
-
-                    //авторизоваться
-                    if (cmd[0] == "/start")
-                    {
-                        ExecuteStartCommand(name, IS_NAME);
-                    }
-                    //получить инструкцию как пользоваться программой
-                    else if (cmd[0] == "/help")
-                    {
-                        ExecuteHelpCommand(name);
-                    }
-                    //получить информацию о программе
-                    else if (cmd[0] == "/info")
-                    {
-                        ExecuteInfoCommand(name);
-                    }
-                    //отображение пользовательского сообщения после ввода команды "/echo"
-                    else if (cmd[0] == "/echo")
-                    {
-                        ExecuteEchoCommand(cmd[1]);
-                    }
-                    //добавить задачи в список
-                    else if (cmd[0] == "/addtask")
-                    {
-                        ExecuteAddtaskCommand(tasks, task, inputCountTasks, inputLenghtTask, MAX_LENGHT_TASK);
-                    }
-                    //показать задачи из списка
-                    else if (cmd[0] == "/showtasks")
-                    {
-                        ExecuteShowtasksCommand(tasks);
-                    }
-                    //удалить задачу из списка
-                    else if (cmd[0] == "/removetask")
-                    {
-                        ExecuteRemovetaskCommand(tasks, numberTask, inputCountTasks, MIN_TASKS);
-                    }
-                    //выход пользователя из программы
-                    else if (cmd[0] == "/exit")
-                    {
-                        ExecuteExitCommand(ref start);
-                    }
-                    //если ввёл неправильно команду
-                    else
-                    {
-                        WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
-                    }
+                    //Обработка комманд
+                    ExecuteCommand(name, IS_NAME, tasks, ref start, task, inputCountTasks, inputLenghtTask, MAX_LENGHT_TASK, MIN_TASKS);
                 }
                 catch (TaskCountLimitException ex)
                 {
@@ -142,9 +76,96 @@ namespace Menu
                 {
                     WriteLine(ex.Message + ' ' + ex.GetType());
                     WriteLine(ex.Message + ' ' + ex.StackTrace);
-                    WriteLine(ex.Message + ' ' + ex.InnerException);
+                    WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
                     //throw;
                 }
+            }
+        }
+        /// <summary>
+        /// Инициализация кол-во задач и длинны задачи при старте программы 
+        /// </summary>
+        public static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask, string NOT_NAME, int MIN_TASKS, int MAX_TASKS
+                                                       , int MIN_LENGHT_TASK, int MAX_LENGHT_TASK)
+        {
+            if (inputCountTasks == 0)
+            {
+                WriteLine("Введите максимальное допустимое количество задач от 1 до 100:");
+                var str = ReadLine();
+                inputCountTasks = ParseAndValidateInt(str, MIN_TASKS, MAX_TASKS);
+            }
+
+            if (inputLenghtTask == 0)
+            {
+                WriteLine("Введите максимально допустимую длинну символов задачи от 1 до 100:");
+                var str = ReadLine();
+                inputLenghtTask = ParseAndValidateInt(str, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
+
+                //приветствие
+                WriteLine("Здравтсвуйте! " + NOT_NAME);
+            }
+        }
+        /// <summary>
+        /// Обработка комманд
+        /// </summary>
+        public static void ExecuteCommand(string name, string IS_NAME, List<string> tasks, ref bool start, string task, int inputCountTasks
+                                          , int inputLenghtTask, int MAX_LENGHT_TASK, int MIN_TASKS)
+        {
+            WriteLine("Для дальнейшей работы введите команду.");
+            var input = ReadLine();
+            //проверяем
+            ValidateString(input);
+            //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
+            var cmd = input.Split(" ", 2);
+
+            //авторизоваться
+            switch (cmd[0].ToLower())
+            {
+
+                case "/start":
+
+                    ExecuteStartCommand(name, IS_NAME);
+                    break;
+
+                //получить инструкцию как пользоваться программой
+                case "/help":
+
+                    ExecuteHelpCommand(name);
+                    break;
+                //получить информацию о программе
+                case "/info":
+
+                    ExecuteInfoCommand(name);
+                    break;
+                //отображение пользовательского сообщения после ввода команды "/echo"
+                case "/echo":
+
+                    ExecuteEchoCommand(cmd[1]);
+                    break;
+                //добавить задачи в список
+                case "/addtask":
+
+                    ExecuteAddtaskCommand(tasks, task, inputCountTasks, inputLenghtTask, MAX_LENGHT_TASK);
+                    break;
+                //показать задачи из списка
+                case "/showtasks":
+
+                    ExecuteShowtasksCommand(tasks);
+                    break;
+                //удалить задачу из списка
+                case "/removetask":
+
+                    ExecuteRemovetaskCommand(tasks, inputCountTasks, MIN_TASKS);
+                    break;
+                //выход пользователя из программы
+                case "/exit":
+
+                    ExecuteExitCommand(ref start);
+                    break;
+                //если ввёл неправильно команду
+                default:
+
+                    WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
+                    break;
             }
         }
         /// <summary>
@@ -269,7 +290,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        public static void ExecuteRemovetaskCommand(List<string> tasks, int numberTask, int inputCountTasks, int MIN_TASKS)
+        public static void ExecuteRemovetaskCommand(List<string> tasks, int inputCountTasks, int MIN_TASKS)
         {
             //Проверка на наличие задач
             if (tasks.Count >= MIN_TASKS)
@@ -284,7 +305,7 @@ namespace Menu
 
                 WriteLine("Введите номер задачи для удаления:\n");
                 var str = ReadLine();
-                numberTask = ParseAndValidateInt(str, 0, inputCountTasks);
+                var numberTask = ParseAndValidateInt(str, 0, inputCountTasks);
                 //удаляем задачу из списка
                 WriteLine($"Задача {tasks[numberTask -= 1]} удалена.");
                 tasks.RemoveAt(numberTask);
