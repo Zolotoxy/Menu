@@ -7,8 +7,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="C:\Project\Git\Menu\Menu\Program.cs" Link="Program.cs" />
-  </ItemGroup>
+  
 
 </Project>
