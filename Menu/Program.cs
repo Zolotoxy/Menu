@@ -42,7 +42,7 @@ namespace Menu
             //Описание одной задачи
             var task = "";
             //введённое имя пользователя
-            var name = "";
+            ToDoUser? currentUser = null;
             //Список задач
             var tasks = new List<string>();
 
@@ -54,7 +54,7 @@ namespace Menu
                     InputAndInutialyzeParametrs(ref inputCountTasks, ref inputLenghtTask);
 
                     //Обработка комманд
-                    ExecuteCommand(name, tasks, ref start, task, inputCountTasks, inputLenghtTask);
+                    currentUser = ExecuteCommand(currentUser, tasks, ref start, task, inputCountTasks, inputLenghtTask);
                 }
                 catch (TaskCountLimitException ex)
                 {
@@ -106,7 +106,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        public static void ExecuteCommand(string name, List<string> tasks, ref bool start, string task, int inputCountTasks, int inputLenghtTask)
+        public static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<string> tasks, ref bool start, string task, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -120,19 +120,23 @@ namespace Menu
             {
 
                 case "/start":
-
-                    ExecuteStartCommand(name);
+                    if (currentUser != null)
+                    {
+                        WriteLine($"Вы уже зарегестрированы как {currentUser.TelegramUserName}.");
+                        break;
+                    }
+                    currentUser = ExecuteStartCommand(currentUser);
                     break;
 
                 //получить инструкцию как пользоваться программой
                 case "/help":
 
-                    ExecuteHelpCommand(name);
+                    ExecuteHelpCommand(currentUser);
                     break;
                 //получить информацию о программе
                 case "/info":
 
-                    ExecuteInfoCommand(name);
+                    ExecuteInfoCommand(currentUser);
                     break;
                 //отображение пользовательского сообщения после ввода команды "/echo"
                 case "/echo":
@@ -165,6 +169,7 @@ namespace Menu
                     WriteLine("Извините, но такой команды \"" + input + "\" не существует!");
                     break;
             }
+            return currentUser;
         }
         /// <summary>
         /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
@@ -194,22 +199,25 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        public static void ExecuteStartCommand(string? name)
+        public static ToDoUser? ExecuteStartCommand(ToDoUser? currentUser)
         {
+            
             WriteLine("Введите ваше имя:");
             //ввод имени
-            name = ReadLine();
+            var name = ReadLine();
             //Проверяем
             ValidateString(name);
-
-            WriteLine("\nДобро пожаловать " + name + "!\nУважаемый " + name + ", " + IS_NAME);
+            currentUser = new ToDoUser(name);
+            currentUser.RegisteredAt.ToLocalTime();
+            WriteLine($"\nДобро пожаловать {currentUser.TelegramUserName} !\nУважаемый  { currentUser.TelegramUserName} ,"  + IS_NAME);
+            return currentUser;
         }
         /// <summary>
         /// Выполнение команды Help
         /// </summary>
-        public static void ExecuteHelpCommand(string name)
+        public static void ExecuteHelpCommand(ToDoUser? currentUser)
         {
-            WriteLine(name + " Вот список команд:\n" +
+            WriteLine(currentUser.TelegramUserName + " Вот список команд:\n" +
                               "/start: Авторизация, ввод имени пользователя.\n" +
                               "/help: Отображает краткую справочную информацию о том, как пользоваться программой.\n" +
                               "/info: Предоставляет информацию о версии программы и дате её создания.\n" +
@@ -222,9 +230,9 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Info
         /// </summary>
-        public static void ExecuteInfoCommand(string name)
+        public static void ExecuteInfoCommand(ToDoUser? currentUser)
         {
-            WriteLine(name + " Версия ПО: 1.1.0; Дата создания: 10.10.2026г.\n");
+            WriteLine(currentUser.TelegramUserName + " Версия ПО: 1.1.1; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Echo
