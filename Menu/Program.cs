@@ -51,10 +51,10 @@ namespace Menu
 
                 try
                 {   //Инициализация параметров при старте
-                    InputAndInutialyzeParametrs(ref inputCountTasks, ref inputLenghtTask, NOT_NAME, MIN_TASKS, MAX_TASKS, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
+                    InputAndInutialyzeParametrs(ref inputCountTasks, ref inputLenghtTask);
 
                     //Обработка комманд
-                    ExecuteCommand(name, IS_NAME, tasks, ref start, task, inputCountTasks, inputLenghtTask, MAX_LENGHT_TASK, MIN_TASKS);
+                    ExecuteCommand(name, tasks, ref start, task, inputCountTasks, inputLenghtTask);
                 }
                 catch (TaskCountLimitException ex)
                 {
@@ -84,8 +84,7 @@ namespace Menu
         /// <summary>
         /// Инициализация кол-во задач и длинны задачи при старте программы 
         /// </summary>
-        public static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask, string NOT_NAME, int MIN_TASKS, int MAX_TASKS
-                                                       , int MIN_LENGHT_TASK, int MAX_LENGHT_TASK)
+        public static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask)
         {
             if (inputCountTasks == 0)
             {
@@ -107,8 +106,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        public static void ExecuteCommand(string name, string IS_NAME, List<string> tasks, ref bool start, string task, int inputCountTasks
-                                          , int inputLenghtTask, int MAX_LENGHT_TASK, int MIN_TASKS)
+        public static void ExecuteCommand(string name, List<string> tasks, ref bool start, string task, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -123,7 +121,7 @@ namespace Menu
 
                 case "/start":
 
-                    ExecuteStartCommand(name, IS_NAME);
+                    ExecuteStartCommand(name);
                     break;
 
                 //получить инструкцию как пользоваться программой
@@ -144,7 +142,7 @@ namespace Menu
                 //добавить задачи в список
                 case "/addtask":
 
-                    ExecuteAddtaskCommand(tasks, task, inputCountTasks, inputLenghtTask, MAX_LENGHT_TASK);
+                    ExecuteAddtaskCommand(tasks, task, inputCountTasks, inputLenghtTask);
                     break;
                 //показать задачи из списка
                 case "/showtasks":
@@ -154,7 +152,7 @@ namespace Menu
                 //удалить задачу из списка
                 case "/removetask":
 
-                    ExecuteRemovetaskCommand(tasks, inputCountTasks, MIN_TASKS);
+                    ExecuteRemovetaskCommand(tasks, inputCountTasks);
                     break;
                 //выход пользователя из программы
                 case "/exit":
@@ -196,7 +194,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        public static void ExecuteStartCommand(string? name, string IS_NAME)
+        public static void ExecuteStartCommand(string? name)
         {
             WriteLine("Введите ваше имя:");
             //ввод имени
@@ -239,7 +237,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        public static void ExecuteAddtaskCommand(List<string> tasks, string task, int inputCountTasks, int inputLenghtTask, int MAX_LENGHT_TASK)
+        public static void ExecuteAddtaskCommand(List<string> tasks, string task, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Пожалуйста, введите описание задачи:");
             task = ReadLine();
@@ -290,7 +288,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        public static void ExecuteRemovetaskCommand(List<string> tasks, int inputCountTasks, int MIN_TASKS)
+        public static void ExecuteRemovetaskCommand(List<string> tasks, int inputCountTasks)
         {
             //Проверка на наличие задач
             if (tasks.Count >= MIN_TASKS)
