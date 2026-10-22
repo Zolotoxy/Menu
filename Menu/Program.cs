@@ -231,7 +231,7 @@ namespace Menu
         /// </summary>
         public static void ExecuteInfoCommand(ToDoUser? currentUser)
         {
-            WriteLine(currentUser.TelegramUserName + " Версия ПО: 1.1.1; Дата создания: 10.10.2026г.\n");
+            WriteLine(currentUser.TelegramUserName + " Версия ПО: 1.1.3; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Echo
@@ -281,12 +281,7 @@ namespace Menu
         {
             if (tasks.Count > 0)
             {
-                var j = 0;
-                //вывод циклом задач из списка
-                for (int i = 0; i < tasks.Count; i++)
-                {
-                    WriteLine($"{++j}. {tasks[i]}");
-                }
+                ShowActiveTasks(tasks);
             }
             else
             {
@@ -302,23 +297,34 @@ namespace Menu
             if (tasks.Count >= MIN_TASKS)
             {
                 WriteLine("Вот ваш список задач:\n");
-                var j = 0;
-                //вывод циклом задач из списка
-                for (int i = 0; i < tasks.Count; i++)
-                {
-                    WriteLine($"{++j}. {tasks[i]}");
-                }
+
+                ShowActiveTasks(tasks);
 
                 WriteLine("Введите номер задачи для удаления:\n");
                 var str = ReadLine();
                 var numberTask = ParseAndValidateInt(str, 0, inputCountTasks);
                 //удаляем задачу из списка
-                WriteLine($"Задача {tasks[numberTask -= 1]} удалена.");
+                WriteLine($"Задача {tasks[numberTask -= 1].Name} удалена.");
                 tasks.RemoveAt(numberTask);
             }
             else
             {
                 WriteLine("Вам нечего удалить, ваш список задач пуст!");
+            }
+        }
+        /// <summary>
+        /// Отображение задач со статусом "Актив"
+        /// </summary>
+        public static void ShowActiveTasks(List<ToDoItem> tasks)
+        {
+            var j = 1;
+            foreach (var t in tasks)
+            {
+                if (t.State == ToDoItemState.Active)
+                {
+                    WriteLine($"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
+                }
+                j++;
             }
         }
         /// <summary>
