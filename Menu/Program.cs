@@ -29,7 +29,7 @@ namespace Menu
         //отображение команд без авторизации
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit\n";
         //отображение команд после авторизации
-        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n";
+        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n/completetask\n";
 
         static void Main(string[] args)
         {
@@ -158,6 +158,11 @@ namespace Menu
 
                     ExecuteRemovetaskCommand(tasks, inputCountTasks);
                     break;
+                //Найти задачу по Id
+                case "/completetask":
+
+                    ExecuteCompletetaskCommand(tasks, cmd);
+                    break;
                 //выход пользователя из программы
                 case "/exit":
 
@@ -231,7 +236,7 @@ namespace Menu
         /// </summary>
         public static void ExecuteInfoCommand(ToDoUser? currentUser)
         {
-            WriteLine(currentUser.TelegramUserName + " Версия ПО: 1.1.3; Дата создания: 10.10.2026г.\n");
+            WriteLine(currentUser?.TelegramUserName + " Версия ПО: 1.1.4; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Echo
@@ -281,7 +286,7 @@ namespace Menu
         {
             if (tasks.Count > 0)
             {
-                ShowActiveTasks(tasks);
+                ExecuteShowActiveTasks(tasks);
             }
             else
             {
@@ -298,7 +303,7 @@ namespace Menu
             {
                 WriteLine("Вот ваш список задач:\n");
 
-                ShowActiveTasks(tasks);
+                ExecuteShowActiveTasks(tasks);
 
                 WriteLine("Введите номер задачи для удаления:\n");
                 var str = ReadLine();
@@ -315,7 +320,7 @@ namespace Menu
         /// <summary>
         /// Отображение задач со статусом "Актив"
         /// </summary>
-        public static void ShowActiveTasks(List<ToDoItem> tasks)
+        public static void ExecuteShowActiveTasks(List<ToDoItem> tasks)
         {
             var j = 1;
             foreach (var t in tasks)
@@ -326,6 +331,21 @@ namespace Menu
                 }
                 j++;
             }
+        }
+        /// <summary>
+        /// Найти задачу по ID
+        /// </summary>
+        public static void ExecuteCompletetaskCommand(List<ToDoItem> tasks, string[]? cmd)
+        {
+            if (!Guid.TryParse(cmd?[1], out Guid id))
+            {
+                throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
+            }
+
+            var t = tasks.FirstOrDefault (t => t.Id == id);
+            t?.State = ToDoItemState.Completed;
+            t?.StateChangedAt = DateTime.UtcNow;
+            
         }
         /// <summary>
         /// Выполнение команды Exit
