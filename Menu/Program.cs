@@ -29,7 +29,7 @@ namespace Menu
         //отображение команд без авторизации
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit\n";
         //отображение команд после авторизации
-        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n/completetask\n";
+        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks";
 
         static void Main(string[] args)
         {
@@ -163,6 +163,11 @@ namespace Menu
 
                     ExecuteCompletetaskCommand(tasks, cmd);
                     break;
+                //Показать все задачи с любым статусом
+                case "/showalltasks":
+
+                    ExecuteShowAllTasksCommand(tasks);
+                    break;
                 //выход пользователя из программы
                 case "/exit":
 
@@ -221,14 +226,22 @@ namespace Menu
         /// </summary>
         public static void ExecuteHelpCommand(ToDoUser? currentUser)
         {
-            WriteLine(currentUser.TelegramUserName + " Вот список команд:\n" +
+            var name = "";
+            if (currentUser == null)
+            {
+                name = currentUser?.TelegramUserName;
+            }
+
+            WriteLine(name + " Вот список команд:\n" +
                               "/start: Авторизация, ввод имени пользователя.\n" +
                               "/help: Отображает краткую справочную информацию о том, как пользоваться программой.\n" +
                               "/info: Предоставляет информацию о версии программы и дате её создания.\n" +
                               "/echo: Команда доступна после авторизации. При вводе этой команды с аргументом \"/echo Hello\" программа возвращает текст \"Hello\")\n" +
                               "/addtask: Команда доступна после авторизации. Добавление задачи в список.\n" +
-                              "/showtasks: Команда доступна после авторизации. Показать задачи в списоке.\n" +
+                              "/showtasks: Команда доступна после авторизации. Показать задачи в списоке у которых статус \"Актив\".\n" +
                               "/removetask: Команда доступна после авторизации. Удалить задачу в списоке.\n" +
+                              "/completetask: Команда доступна после авторизации. Переводит задачу в статус \"Выполнено\".\n" +
+                              "/showalltasks: Команда доступна после авторизации. Показывает задачи с любым статусом.\n" +
                               "/exit: Выход из программы.\n");
         }
         /// <summary>
@@ -236,7 +249,7 @@ namespace Menu
         /// </summary>
         public static void ExecuteInfoCommand(ToDoUser? currentUser)
         {
-            WriteLine(currentUser?.TelegramUserName + " Версия ПО: 1.1.4; Дата создания: 10.10.2026г.\n");
+            WriteLine(currentUser?.TelegramUserName + " Версия ПО: 1.1.6; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Echo
@@ -284,7 +297,7 @@ namespace Menu
         /// </summary>
         public static void ExecuteShowtasksCommand(List<ToDoItem> tasks)
         {
-            if (tasks.Count > 0)
+            if (tasks.Count >= MIN_TASKS)
             {
                 ExecuteShowActiveTasks(tasks);
             }
@@ -322,15 +335,23 @@ namespace Menu
         /// </summary>
         public static void ExecuteShowActiveTasks(List<ToDoItem> tasks)
         {
-            var j = 1;
-            foreach (var t in tasks)
+            if (tasks.Count >= MIN_TASKS)
             {
-                if (t.State == ToDoItemState.Active)
+                var j = 1;
+                foreach (var t in tasks)
                 {
-                    WriteLine($"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
+                    if (t.State == ToDoItemState.Active)
+                    {
+                        WriteLine($"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
+                    }
+                    j++;
                 }
-                j++;
             }
+            else
+            {
+                WriteLine("Ваш список задач пуст! Добавте задачи.");
+            }
+            
         }
         /// <summary>
         /// Найти задачу по ID
@@ -346,6 +367,25 @@ namespace Menu
             t?.State = ToDoItemState.Completed;
             t?.StateChangedAt = DateTime.UtcNow;
             
+        }
+        /// <summary>
+        /// Показать все задачи с любым статусом
+        /// </summary>
+        public static void ExecuteShowAllTasksCommand(List<ToDoItem> tasks)
+        {
+            if (tasks.Count >= MIN_TASKS)
+            {
+                var j = 1;
+                foreach (var t in tasks)
+                {
+                    WriteLine($"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
+                    j++;
+                }
+            }
+            else
+            {
+                WriteLine("Ваш список задач пуст! Добавте задачи.");
+            }
         }
         /// <summary>
         /// Выполнение команды Exit
