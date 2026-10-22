@@ -40,11 +40,11 @@ namespace Menu
             //введённая длина символов задачи
             var inputLenghtTask = 0;
             //Описание одной задачи
-            var task = "";
+            //ToDoItem? task = null;
             //введённое имя пользователя
             ToDoUser? currentUser = null;
             //Список задач
-            var tasks = new List<string>();
+            var tasks = new List<ToDoItem>();
 
             while (start)
             {
@@ -54,7 +54,7 @@ namespace Menu
                     InputAndInutialyzeParametrs(ref inputCountTasks, ref inputLenghtTask);
 
                     //Обработка комманд
-                    currentUser = ExecuteCommand(currentUser, tasks, ref start, task, inputCountTasks, inputLenghtTask);
+                    currentUser = ExecuteCommand(currentUser, tasks, ref start, inputCountTasks, inputLenghtTask);
                 }
                 catch (TaskCountLimitException ex)
                 {
@@ -106,7 +106,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        public static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<string> tasks, ref bool start, string task, int inputCountTasks, int inputLenghtTask)
+        public static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -146,7 +146,7 @@ namespace Menu
                 //добавить задачи в список
                 case "/addtask":
 
-                    ExecuteAddtaskCommand(tasks, task, inputCountTasks, inputLenghtTask);
+                    ExecuteAddtaskCommand(tasks, currentUser, inputCountTasks, inputLenghtTask);
                     break;
                 //показать задачи из списка
                 case "/showtasks":
@@ -208,7 +208,6 @@ namespace Menu
             //Проверяем
             ValidateString(name);
             currentUser = new ToDoUser(name);
-            currentUser.RegisteredAt.ToLocalTime();
             WriteLine($"\nДобро пожаловать {currentUser.TelegramUserName} !\nУважаемый  { currentUser.TelegramUserName} ,"  + IS_NAME);
             return currentUser;
         }
@@ -245,10 +244,10 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        public static void ExecuteAddtaskCommand(List<string> tasks, string task, int inputCountTasks, int inputLenghtTask)
+        public static void ExecuteAddtaskCommand(List<ToDoItem> tasks, ToDoUser? currentUser, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Пожалуйста, введите описание задачи:");
-            task = ReadLine();
+            var task = ReadLine();
             //Проверяем
             ValidateString(task);
 
@@ -263,21 +262,22 @@ namespace Menu
             {
                 throw new TaskLengthLimitException($"Длинна задачи {inputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", inputLenghtTask, MAX_LENGHT_TASK);
             }
-
+            
             //Проверка на дубликаты задач
-            if (tasks.Contains(task))
+            if (tasks.Exists(t => t.Name.Contains(task, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new DublicateTaskException($"Задача {task} уже существует", task);
             }
 
-            //добавляем задачу в список
-            tasks.Add(task);
-            WriteLine("\nЗадача \"" + task + "\" добавлена.\n");
+            //Добавляем задачу в список
+            var t = new ToDoItem(currentUser, task);
+            tasks.Add(t);
+            WriteLine("\nЗадача \"" + t.Name + "\" добавлена.\n");
         }
         /// <summary>
         /// Выполнение команды Showtasks
         /// </summary>
-        public static void ExecuteShowtasksCommand(List<string> tasks)
+        public static void ExecuteShowtasksCommand(List<ToDoItem> tasks)
         {
             if (tasks.Count > 0)
             {
@@ -296,7 +296,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        public static void ExecuteRemovetaskCommand(List<string> tasks, int inputCountTasks)
+        public static void ExecuteRemovetaskCommand(List<ToDoItem> tasks, int inputCountTasks)
         {
             //Проверка на наличие задач
             if (tasks.Count >= MIN_TASKS)
