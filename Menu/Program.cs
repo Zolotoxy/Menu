@@ -84,7 +84,7 @@ namespace Menu
         /// <summary>
         /// Инициализация кол-во задач и длинны задачи при старте программы 
         /// </summary>
-        public static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask)
+        static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask)
         {
             if (inputCountTasks == 0)
             {
@@ -106,7 +106,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        public static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask)
+        static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -184,7 +184,7 @@ namespace Menu
         /// <summary>
         /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
         /// </summary>
-        public static int ParseAndValidateInt(string? str, int min, int max)
+        static int ParseAndValidateInt(string? str, int min, int max)
         {
             if (int.TryParse(str, out int i) && (i > min && i <= max))
             {
@@ -198,10 +198,9 @@ namespace Menu
         /// <summary>
         /// Проверяем что строка не null не пустая и обрезаем пробелы
         /// </summary>
-        public static void ValidateString(string? str)
+        static void ValidateString(string? str)
         {
-            str = (str ?? string.Empty).Trim();
-            if (String.IsNullOrEmpty(str))
+            if (String.IsNullOrWhiteSpace(str))
             {
                 throw new ArgumentException("Некорректно введёно поле, пожалуйста попробуйте ещё раз.");
             }
@@ -209,7 +208,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        public static ToDoUser? ExecuteStartCommand(ToDoUser? currentUser)
+        static ToDoUser? ExecuteStartCommand(ToDoUser? currentUser)
         {
             
             WriteLine("Введите ваше имя:");
@@ -224,7 +223,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Help
         /// </summary>
-        public static void ExecuteHelpCommand(ToDoUser? currentUser)
+        static void ExecuteHelpCommand(ToDoUser? currentUser)
         {
             var name = "";
             if (currentUser == null)
@@ -247,14 +246,14 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Info
         /// </summary>
-        public static void ExecuteInfoCommand(ToDoUser? currentUser)
+        static void ExecuteInfoCommand(ToDoUser? currentUser)
         {
             WriteLine(currentUser?.TelegramUserName + " Версия ПО: 1.1.6; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Echo
         /// </summary>
-        public static void ExecuteEchoCommand(string cmd)
+        static void ExecuteEchoCommand(string cmd)
         {
             //ввывод аргументов после введённой команды
             WriteLine(cmd);
@@ -262,7 +261,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        public static void ExecuteAddtaskCommand(List<ToDoItem> tasks, ToDoUser? currentUser, int inputCountTasks, int inputLenghtTask)
+        static void ExecuteAddtaskCommand(List<ToDoItem> tasks, ToDoUser? currentUser, int inputCountTasks, int inputLenghtTask)
         {
             WriteLine("Пожалуйста, введите описание задачи:");
             var task = ReadLine();
@@ -295,7 +294,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Showtasks
         /// </summary>
-        public static void ExecuteShowtasksCommand(List<ToDoItem> tasks)
+        static void ExecuteShowtasksCommand(List<ToDoItem> tasks)
         {
             if (tasks.Count >= MIN_TASKS)
             {
@@ -309,7 +308,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        public static void ExecuteRemovetaskCommand(List<ToDoItem> tasks, int inputCountTasks)
+        static void ExecuteRemovetaskCommand(List<ToDoItem> tasks, int inputCountTasks)
         {
             //Проверка на наличие задач
             if (tasks.Count >= MIN_TASKS)
@@ -333,7 +332,7 @@ namespace Menu
         /// <summary>
         /// Отображение задач со статусом "Актив"
         /// </summary>
-        public static void ExecuteShowActiveTasks(List<ToDoItem> tasks)
+        static void ExecuteShowActiveTasks(List<ToDoItem> tasks)
         {
             if (tasks.Count >= MIN_TASKS)
             {
@@ -356,7 +355,7 @@ namespace Menu
         /// <summary>
         /// Найти задачу по ID
         /// </summary>
-        public static void ExecuteCompletetaskCommand(List<ToDoItem> tasks, string[]? cmd)
+        static void ExecuteCompletetaskCommand(List<ToDoItem> tasks, string[]? cmd)
         {
             if (!Guid.TryParse(cmd?[1], out Guid id))
             {
@@ -371,7 +370,7 @@ namespace Menu
         /// <summary>
         /// Показать все задачи с любым статусом
         /// </summary>
-        public static void ExecuteShowAllTasksCommand(List<ToDoItem> tasks)
+        static void ExecuteShowAllTasksCommand(List<ToDoItem> tasks)
         {
             if (tasks.Count >= MIN_TASKS)
             {
@@ -390,7 +389,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Exit
         /// </summary>
-        public static void ExecuteExitCommand(ref bool start)
+        static void ExecuteExitCommand(ref bool start)
         {
             start = false;
         }
