@@ -21,9 +21,9 @@ namespace Menu
         //миниимальное количество символов задачи
         const int MIN_LENGHT_TASK = 1;
         //отображение команд без авторизации
-        const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit\n";
+        const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n";
         //отображение команд после авторизации
-        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start \n/help \n/info \n/exit \n/echo\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks";
+        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks";
         //введённое имя пользователя
         private ToDoUser? _currentUser = null;
         //кол-во задач введённое пользователем
@@ -116,11 +116,6 @@ namespace Menu
                 case "/info":
 
                     ExecuteInfoCommand(currentUser, botClient, update);
-                    break;
-                //отображение пользовательского сообщения после ввода команды "/echo"
-                case "/echo":
-
-                    ExecuteEchoCommand(cmd[1],botClient,update);
                     break;
                 //добавить задачи в список
                 case "/addtask":
@@ -228,14 +223,6 @@ namespace Menu
         static void ExecuteInfoCommand(ToDoUser? currentUser, ITelegramBotClient botClient, Update update)
         {
             botClient.SendMessage(update.Message.Chat, currentUser?.TelegramUserName + " Версия ПО: 1.2.0; Дата создания: 10.10.2026г.\n");
-        }
-        /// <summary>
-        /// Выполнение команды Echo
-        /// </summary>
-        static void ExecuteEchoCommand(string cmd, ITelegramBotClient botClient, Update update)
-        {
-            //ввывод аргументов после введённой команды
-            botClient.SendMessage(update.Message.Chat, cmd);
         }
         /// <summary>
         /// Выполнение команды Addtask
