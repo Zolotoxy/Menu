@@ -32,7 +32,12 @@ namespace Menu
         private int _inputLenghtTask = 0;
         //Список задач
         private List<ToDoItem> _tasks = new List<ToDoItem>();
+        private readonly IUserService _service;
 
+        public UpdateHandler(IUserService service)
+        {
+            _service = service;
+        }
         public void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
         {
             try
@@ -40,7 +45,7 @@ namespace Menu
                 InputAndInutialyzeParametrs(ref _inputCountTasks, ref _inputLenghtTask, botClient, update);
 
                 //Обработка комманд
-                _currentUser = ExecuteCommand(_currentUser, _tasks, ref _start, _inputCountTasks, _inputLenghtTask, botClient, update);
+                /*_currentUser = */ExecuteCommand(_service, _tasks, ref _start, _inputCountTasks, _inputLenghtTask, botClient, update);
             }
             catch (TaskCountLimitException ex)
             {
@@ -85,7 +90,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        static ToDoUser? ExecuteCommand(ToDoUser? currentUser, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
+        static void ExecuteCommand(IUserService _service, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
         {
             botClient.SendMessage(update.Message.Chat, "Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -99,28 +104,28 @@ namespace Menu
             {
 
                 case "/start":
-                    if (currentUser != null)
-                    {
-                        botClient.SendMessage(update.Message.Chat, $"Вы уже зарегестрированы как {currentUser.TelegramUserName}.");
-                        break;
-                    }
-                    currentUser = ExecuteStartCommand(currentUser, botClient, update);
+                    //if (currentUser != null)
+                    //{
+                    //    botClient.SendMessage(update.Message.Chat, $"Вы уже зарегестрированы как {currentUser.TelegramUserName}.");
+                    //    break;
+                    //}
+                    ExecuteStartCommand(_service, botClient, update);
                     break;
 
                 //получить инструкцию как пользоваться программой
                 case "/help":
 
-                    ExecuteHelpCommand(currentUser, botClient, update);
+                    ExecuteHelpCommand(_service, botClient, update);
                     break;
                 //получить информацию о программе
                 case "/info":
 
-                    ExecuteInfoCommand(currentUser, botClient, update);
+                    ExecuteInfoCommand(_service, botClient, update);
                     break;
                 //добавить задачи в список
                 case "/addtask":
 
-                    ExecuteAddtaskCommand(tasks, currentUser, inputCountTasks, inputLenghtTask, botClient,update);
+                    ExecuteAddtaskCommand(tasks, _service, inputCountTasks, inputLenghtTask, botClient,update);
                     break;
                 //показать задачи из списка
                 case "/showtasks":
@@ -153,7 +158,7 @@ namespace Menu
                     botClient.SendMessage(update.Message.Chat, "Извините, но такой команды \"" + input + "\" не существует!");
                     break;
             }
-            return currentUser;
+            //return currentUser;
         }
         /// <summary>
         /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
@@ -182,27 +187,32 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        static ToDoUser? ExecuteStartCommand(ToDoUser? currentUser, ITelegramBotClient botClient, Update update)
+        static void ExecuteStartCommand(IUserService _service, ITelegramBotClient botClient, Update update)
         {
 
-            botClient.SendMessage(update.Message.Chat, "Введите ваше имя:");
+            //botClient.SendMessage(update.Message.Chat, "Введите ваше имя:");
             //ввод имени
-            var name = ReadLine();
+            //var name = ReadLine();
             //Проверяем
-            ValidateString(name);
-            currentUser = new ToDoUser(name);
-            botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {currentUser.TelegramUserName} !\nУважаемый  {currentUser.TelegramUserName} ," + IS_NAME);
-            return currentUser;
+            //ValidateString(name);
+            //currentUser = new ToDoUser(name);
+            var user = _service.GetUser(update.Message.Id);
+            if (user == null)
+            {
+                _service.RegisterUser(update.Message.From.Id, update.Message.From.Username);
+            }
+            botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {update.Message.From.Username} !\nУважаемый  {update.Message.From.Username} ," + IS_NAME);
+            //return currentUser;
         }
         /// <summary>
         /// Выполнение команды Help
         /// </summary>
-        static void ExecuteHelpCommand(ToDoUser? currentUser, ITelegramBotClient botClient, Update update)
+        static void ExecuteHelpCommand(IUserService _service, ITelegramBotClient botClient, Update update)
         {
             var name = "";
-            if (currentUser == null)
+            if (update.Message.From.Username == null)
             {
-                name = currentUser?.TelegramUserName;
+                name = update.Message.From.Username;
             }
 
             botClient.SendMessage(update.Message.Chat, name + " Вот список команд:\n" +
@@ -220,14 +230,14 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Info
         /// </summary>
-        static void ExecuteInfoCommand(ToDoUser? currentUser, ITelegramBotClient botClient, Update update)
+        static void ExecuteInfoCommand(IUserService _service, ITelegramBotClient botClient, Update update)
         {
-            botClient.SendMessage(update.Message.Chat, currentUser?.TelegramUserName + " Версия ПО: 1.2.0; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.3; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        static void ExecuteAddtaskCommand(List<ToDoItem> tasks, ToDoUser? currentUser, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
+        static void ExecuteAddtaskCommand(List<ToDoItem> tasks, IUserService _service, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
         {
             botClient.SendMessage(update.Message.Chat, "Пожалуйста, введите описание задачи:");
             var task = ReadLine();
