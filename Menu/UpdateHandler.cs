@@ -232,7 +232,7 @@ namespace Menu
         /// </summary>
         static void ExecuteInfoCommand(IUserService _service, ITelegramBotClient botClient, Update update)
         {
-            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.3; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.4; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
