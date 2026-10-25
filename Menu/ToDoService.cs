@@ -25,7 +25,7 @@ namespace Menu
             //Проверка на дубликаты задач
             if (_tasks.Exists(t => t.Name.Contains(task, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new DublicateTaskException($"Задача {task} уже существует", task);
+                throw new ArgumentException($"Задача {task} уже существует", task);
             }            
         }
         public ToDoItem Add(ToDoUser user, string name)
@@ -94,7 +94,7 @@ namespace Menu
         {
             if (_tasks.Count >= InputCountTasks)
             {
-                throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {InputCountTasks}", InputCountTasks);
+                throw new ArgumentException($"Превышено максимальное количество задач равное: {InputCountTasks}");
             }
         }
         //проверка на максим длинну символов задачи
@@ -102,7 +102,7 @@ namespace Menu
         {
             if (task?.Length >= InputLenghtTask)
             {
-                throw new TaskLengthLimitException($"Длинна задачи {InputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", InputLenghtTask, MAX_LENGHT_TASK);
+                throw new ArgumentException($"Длинна задачи {InputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}");
             }
         }
         /// <summary>

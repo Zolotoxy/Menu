@@ -21,12 +21,12 @@ namespace Menu
         //Хранилище задач
         private IToDoService _itemService;
 
-        public UpdateHandler(IUserService service, IToDoService itemService)
+        public UpdateHandler(IUserService userService, IToDoService itemService)
         {
-            _userService = service;
+            _userService = userService;
             _itemService = itemService;
         }
-        public void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
+        public async void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
         {
             try
             {   //Инициализация параметров при старте
@@ -35,18 +35,7 @@ namespace Menu
                 //Обработка комманд
                 ExecuteCommand(_userService, ref _start, botClient, update, _itemService);
             }
-            catch (TaskCountLimitException ex)
-            {
-                botClient.SendMessage(update.Message.Chat, ex.Message + ": " + ex.TaskCountLimit);
-            }
-            catch (TaskLengthLimitException ex)
-            {
-                botClient.SendMessage(update.Message.Chat, ex.Message + ": " + ex.TaskLenghtLimit);
-            }
-            catch (DublicateTaskException ex)
-            {
-                botClient.SendMessage(update.Message.Chat, ex.Message + ": " + ex.Task);
-            }
+            
             catch (ArgumentException ex)
             {
                 botClient.SendMessage(update.Message.Chat, ex.Message);
@@ -164,13 +153,6 @@ namespace Menu
         /// </summary>
         static void ExecuteStartCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
         {
-
-            //botClient.SendMessage(update.Message.Chat, "Введите ваше имя:");
-            //ввод имени
-            //var name = ReadLine();
-            //Проверяем
-            //ValidateString(name);
-            //currentUser = new ToDoUser(name);
             var user = _userService.GetUser(update.Message.Id);
             if (user == null)
             {

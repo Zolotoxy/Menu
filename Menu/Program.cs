@@ -25,31 +25,33 @@ namespace Menu
         static void Main(string[] args)
         {
             
+            var userService = new UserService();
+            var itemService = new ToDoService();
 
-            var handler = new UpdateHandler();
+            var handler = new UpdateHandler(userService, itemService);
+
             var botClient = new ConsoleBotClient();
+
             botClient.StartReceiving(handler);
-            var update = new Update();
+
+            while (true)
+            {
+               // botClient.StartReceiving(handler);
 
 
-            //while (true)
-            //{
-            //    botClient.StartReceiving(handler);
+                try
+                {
+                    //botClient.StartReceiving(handler);
+                }
 
-
-            //    try
-            //    {
-            //        //handler.HandleUpdateAsync(botClient, update);
-            //    }
-
-            //    catch (Exception ex)
-            //    {
-            //        WriteLine(ex.Message + ' ' + ex.GetType());
-            //        WriteLine(ex.Message + ' ' + ex.StackTrace);
-            //        WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
-            //        //throw;
-            //    }
-            //}
+                catch (Exception ex)
+                {
+                    WriteLine(ex.Message + ' ' + ex.GetType());
+                    WriteLine(ex.Message + ' ' + ex.StackTrace);
+                    WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
+                    //throw;
+                }
+            }
         }
     }
 }
