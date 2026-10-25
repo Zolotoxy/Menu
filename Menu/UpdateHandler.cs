@@ -12,40 +12,28 @@ namespace Menu
     {
         //флаг старта программы
         private bool _start = true;
-        //максимальное количество задач
-        const int MAX_TASKS = 100;
-        //миниимальное количество задач
-        const int MIN_TASKS = 1;
-        //максимальное количество символов задачи
-        const int MAX_LENGHT_TASK = 100;
-        //миниимальное количество символов задачи
-        const int MIN_LENGHT_TASK = 1;
         //отображение команд без авторизации
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n";
         //отображение команд после авторизации
         const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks";
-        //введённое имя пользователя
-        private ToDoUser? _currentUser = null;
-        //кол-во задач введённое пользователем
-        private int _inputCountTasks = 0;
-        //введённая длина символов задачи
-        private int _inputLenghtTask = 0;
-        //Список задач
-        private List<ToDoItem> _tasks = new List<ToDoItem>();
-        private readonly IUserService _service;
+        //Хранилище пользователей
+        private IUserService _userService;
+        //Хранилище задач
+        private IToDoService _itemService;
 
-        public UpdateHandler(IUserService service)
+        public UpdateHandler(IUserService service, IToDoService itemService)
         {
-            _service = service;
+            _userService = service;
+            _itemService = itemService;
         }
         public void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
         {
             try
             {   //Инициализация параметров при старте
-                InputAndInutialyzeParametrs(ref _inputCountTasks, ref _inputLenghtTask, botClient, update);
+                InputAndInutialyzeParametrs(_itemService, botClient, update);
 
                 //Обработка комманд
-                /*_currentUser = */ExecuteCommand(_service, _tasks, ref _start, _inputCountTasks, _inputLenghtTask, botClient, update);
+                ExecuteCommand(_userService, ref _start, botClient, update, _itemService);
             }
             catch (TaskCountLimitException ex)
             {
@@ -68,20 +56,20 @@ namespace Menu
         /// <summary>
         /// Инициализация кол-во задач и длинны задачи при старте программы 
         /// </summary>
-        static void InputAndInutialyzeParametrs(ref int inputCountTasks, ref int inputLenghtTask, ITelegramBotClient botClient, Update update)
+        static void InputAndInutialyzeParametrs(IToDoService _itemService, ITelegramBotClient botClient, Update update)
         {
-            if (inputCountTasks == 0)
+            if (_itemService.InputCountTasks == 0)
             {
                 botClient.SendMessage(update.Message.Chat, "Введите максимальное допустимое количество задач от 1 до 100:");
                 var str = ReadLine();
-                inputCountTasks = ParseAndValidateInt(str, MIN_TASKS, MAX_TASKS);
+                _itemService.ParseAndValidateCountInt(str);
             }
 
-            if (inputLenghtTask == 0)
+            if (_itemService.InputLenghtTask == 0)
             {
                 botClient.SendMessage(update.Message.Chat, "Введите максимально допустимую длинну символов задачи от 1 до 100:");
                 var str = ReadLine();
-                inputLenghtTask = ParseAndValidateInt(str, MIN_LENGHT_TASK, MAX_LENGHT_TASK);
+                _itemService.ParseAndValidateLenghtInt(str);
 
                 //приветствие
                 botClient.SendMessage(update.Message.Chat, "Здравтсвуйте! " + NOT_NAME);
@@ -90,7 +78,7 @@ namespace Menu
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        static void ExecuteCommand(IUserService _service, List<ToDoItem> tasks, ref bool start, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
+        static void ExecuteCommand(IUserService _userService, ref bool start, ITelegramBotClient botClient, Update update, IToDoService _itemService)
         {
             botClient.SendMessage(update.Message.Chat, "Для дальнейшей работы введите команду.");
             var input = ReadLine();
@@ -109,43 +97,43 @@ namespace Menu
                     //    botClient.SendMessage(update.Message.Chat, $"Вы уже зарегестрированы как {currentUser.TelegramUserName}.");
                     //    break;
                     //}
-                    ExecuteStartCommand(_service, botClient, update);
+                    ExecuteStartCommand(_userService, botClient, update);
                     break;
 
                 //получить инструкцию как пользоваться программой
                 case "/help":
 
-                    ExecuteHelpCommand(_service, botClient, update);
+                    ExecuteHelpCommand(_userService, botClient, update);
                     break;
                 //получить информацию о программе
                 case "/info":
 
-                    ExecuteInfoCommand(_service, botClient, update);
+                    ExecuteInfoCommand(_userService, botClient, update);
                     break;
                 //добавить задачи в список
                 case "/addtask":
 
-                    ExecuteAddtaskCommand(tasks, _service, inputCountTasks, inputLenghtTask, botClient,update);
+                    ExecuteAddtaskCommand(_userService, botClient, update, _itemService, cmd);
                     break;
                 //показать задачи из списка
                 case "/showtasks":
 
-                    ExecuteShowtasksCommand(tasks, botClient, update);
+                    ExecuteShowActiveTasks(_userService, botClient, update, _itemService);
                     break;
                 //удалить задачу из списка
                 case "/removetask":
 
-                    ExecuteRemovetaskCommand(tasks, inputCountTasks, botClient, update);
+                    ExecuteRemovetaskCommand(botClient, update, _itemService, cmd, _userService);
                     break;
                 //Найти задачу по Id
                 case "/completetask":
 
-                    ExecuteCompletetaskCommand(tasks, cmd);
+                    ExecuteCompletetaskCommand(cmd, _itemService);
                     break;
                 //Показать все задачи с любым статусом
                 case "/showalltasks":
 
-                    ExecuteShowAllTasksCommand(tasks, botClient, update);
+                    ExecuteShowAllTasksCommand(_userService, botClient, update, _itemService);
                     break;
                 //выход пользователя из программы
                 case "/exit":
@@ -160,20 +148,7 @@ namespace Menu
             }
             //return currentUser;
         }
-        /// <summary>
-        /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
-        /// </summary>
-        static int ParseAndValidateInt(string? str, int min, int max)
-        {
-            if (int.TryParse(str, out int i) && (i > min && i <= max))
-            {
-                return i;
-            }
-            else
-            {
-                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
-            }
-        }
+        
         /// <summary>
         /// Проверяем что строка не null не пустая и обрезаем пробелы
         /// </summary>
@@ -187,7 +162,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        static void ExecuteStartCommand(IUserService _service, ITelegramBotClient botClient, Update update)
+        static void ExecuteStartCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
         {
 
             //botClient.SendMessage(update.Message.Chat, "Введите ваше имя:");
@@ -196,10 +171,10 @@ namespace Menu
             //Проверяем
             //ValidateString(name);
             //currentUser = new ToDoUser(name);
-            var user = _service.GetUser(update.Message.Id);
+            var user = _userService.GetUser(update.Message.Id);
             if (user == null)
             {
-                _service.RegisterUser(update.Message.From.Id, update.Message.From.Username);
+                _userService.RegisterUser(update.Message.From.Id, update.Message.From.Username);
             }
             botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {update.Message.From.Username} !\nУважаемый  {update.Message.From.Username} ," + IS_NAME);
             //return currentUser;
@@ -207,7 +182,7 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Help
         /// </summary>
-        static void ExecuteHelpCommand(IUserService _service, ITelegramBotClient botClient, Update update)
+        static void ExecuteHelpCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
         {
             var name = "";
             if (update.Message.From.Username == null)
@@ -230,75 +205,63 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Info
         /// </summary>
-        static void ExecuteInfoCommand(IUserService _service, ITelegramBotClient botClient, Update update)
+        static void ExecuteInfoCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
         {
-            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.4; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.6; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        static void ExecuteAddtaskCommand(List<ToDoItem> tasks, IUserService _service, int inputCountTasks, int inputLenghtTask, ITelegramBotClient botClient, Update update)
+        static void ExecuteAddtaskCommand(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService, string[] cmd)
         {
             botClient.SendMessage(update.Message.Chat, "Пожалуйста, введите описание задачи:");
-            var task = ReadLine();
+            string? task = cmd[1];
             //Проверяем
             ValidateString(task);
 
             //Проверка на установленное количество задач
-            if (tasks.Count >= inputCountTasks)
-            {
-                throw new TaskCountLimitException($"Превышено максимальное количество задач равное: {inputCountTasks}", inputCountTasks);
-            }
+            _itemService.isMaxCountTasks();
 
             //Проверка на установленную длинну задачи 
-            if (task.Length >= inputLenghtTask)
-            {
-                throw new TaskLengthLimitException($"Длинна задачи {inputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}", inputLenghtTask, MAX_LENGHT_TASK);
-            }
+            _itemService.isMaxLenghtTask(task);
 
             //Проверка на дубликаты задач
-            if (tasks.Exists(t => t.Name.Contains(task, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new DublicateTaskException($"Задача {task} уже существует", task);
-            }
-
+            _itemService.isDublicate(task);
+            
             //Добавляем задачу в список
-            var t = new ToDoItem(currentUser, task);
-            tasks.Add(t);
+            var t = _itemService.Add(_userService.GetUser(update.Message.Id), task);
+            //tasks.Add(t);
             botClient.SendMessage(update.Message.Chat, "\nЗадача \"" + t.Name + "\" добавлена.\n");
         }
         /// <summary>
         /// Выполнение команды Showtasks
         /// </summary>
-        static void ExecuteShowtasksCommand(List<ToDoItem> tasks, ITelegramBotClient botClient, Update update)
-        {
-            if (tasks.Count >= MIN_TASKS)
-            {
-                ExecuteShowActiveTasks(tasks, botClient, update);
-            }
-            else
-            {
-                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
-            }
-        }
+        //static void ExecuteShowtasksCommand(List<ToDoItem> tasks, ITelegramBotClient botClient, Update update)
+        //{
+        //    if (tasks.Count >= MIN_TASKS)
+        //    {
+        //        ExecuteShowActiveTasks(tasks, botClient, update);
+        //    }
+        //    else
+        //    {
+        //        botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+        //    }
+        //}
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        static void ExecuteRemovetaskCommand(List<ToDoItem> tasks, int inputCountTasks, ITelegramBotClient botClient, Update update)
+        static void ExecuteRemovetaskCommand(ITelegramBotClient botClient, Update update, IToDoService _itemService, string[] cmd, IUserService _userService)
         {
+            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
             //Проверка на наличие задач
-            if (tasks.Count >= MIN_TASKS)
+            if (tasks.Count >= 1)
             {
-                botClient.SendMessage(update.Message.Chat, "Вот ваш список задач:\n");
-
-                ExecuteShowActiveTasks(tasks, botClient, update);
-
-                botClient.SendMessage(update.Message.Chat, "Введите номер задачи для удаления:\n");
-                var str = ReadLine();
-                var numberTask = ParseAndValidateInt(str, 0, inputCountTasks);
-                //удаляем задачу из списка
-                botClient.SendMessage(update.Message.Chat, $"Задача {tasks[numberTask -= 1].Name} удалена.");
-                tasks.RemoveAt(numberTask);
+                if (!Guid.TryParse(cmd?[1], out Guid id))
+                {
+                    throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
+                }
+                _itemService.Delete(id);
+                botClient.SendMessage(update.Message.Chat, $"Задача удалена.");
             }
             else
             {
@@ -308,17 +271,14 @@ namespace Menu
         /// <summary>
         /// Отображение задач со статусом "Актив"
         /// </summary>
-        static void ExecuteShowActiveTasks(List<ToDoItem> tasks, ITelegramBotClient botClient, Update update)
+        static void ExecuteShowActiveTasks(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService)
         {
-            if (tasks.Count >= MIN_TASKS)
+            if (_itemService.InputCountTasks >= 1)
             {
                 var j = 1;
-                foreach (var t in tasks)
+                foreach (var t in _itemService.GetActiveByUserId(_userService.GetUser(update.Message.From.Id).UserId))
                 {
-                    if (t.State == ToDoItemState.Active)
-                    {
-                        botClient.SendMessage(update.Message.Chat, $"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
-                    }
+                    botClient.SendMessage(update.Message.Chat, $"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
                     j++;
                 }
             }
@@ -331,24 +291,21 @@ namespace Menu
         /// <summary>
         /// Найти задачу по ID
         /// </summary>
-        static void ExecuteCompletetaskCommand(List<ToDoItem> tasks, string[]? cmd)
+        static void ExecuteCompletetaskCommand(string[]? cmd, IToDoService _itemService)
         {
             if (!Guid.TryParse(cmd?[1], out Guid id))
             {
                 throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
             }
-
-            var t = tasks.FirstOrDefault(t => t.Id == id);
-            t?.State = ToDoItemState.Completed;
-            t?.StateChangedAt = DateTime.UtcNow;
-
+            _itemService.MarkCompleted(id);
         }
         /// <summary>
         /// Показать все задачи с любым статусом
         /// </summary>
-        static void ExecuteShowAllTasksCommand(List<ToDoItem> tasks, ITelegramBotClient botClient, Update update)
+        static void ExecuteShowAllTasksCommand(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService)
         {
-            if (tasks.Count >= MIN_TASKS)
+            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
+            if (tasks.Count >= 1)
             {
                 var j = 1;
                 foreach (var t in tasks)
