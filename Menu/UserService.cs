@@ -10,7 +10,7 @@ namespace Menu
     internal class UserService : IUserService
     {
         //Список пользователей
-        private readonly Dictionary<long, ToDoUser> _users = new();
+        private readonly Dictionary<long, ToDoUser> _users = new Dictionary<long, ToDoUser>();
         //Поиск пользователя
         public ToDoUser? GetUser(long telegramUserId)
         {

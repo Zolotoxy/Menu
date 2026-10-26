@@ -34,24 +34,24 @@ namespace Menu
 
             botClient.StartReceiving(handler);
 
-            while (true)
-            {
-               // botClient.StartReceiving(handler);
+            //while (true)
+            //{
+            //   // botClient.StartReceiving(handler);
 
 
-                try
-                {
-                    //botClient.StartReceiving(handler);
-                }
+            //    try
+            //    {
+            //        //botClient.StartReceiving(handler);
+            //    }
 
-                catch (Exception ex)
-                {
-                    WriteLine(ex.Message + ' ' + ex.GetType());
-                    WriteLine(ex.Message + ' ' + ex.StackTrace);
-                    WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
-                    //throw;
-                }
-            }
+            //    catch (Exception ex)
+            //    {
+            //        WriteLine(ex.Message + ' ' + ex.GetType());
+            //        WriteLine(ex.Message + ' ' + ex.StackTrace);
+            //        WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
+            //        //throw;
+            //    }
+            //}
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Menu
             foreach (var t in _tasks)
             {
                 //условие статус "Актив" и "Id"
-                if (t.Id == userId && t.State == ToDoItemState.Active)
+                if (t.User.UserId == userId && t.State == ToDoItemState.Active)
                 {
                     //добавляем совпадение
                     filtered.Add(t);
@@ -74,7 +74,7 @@ namespace Menu
             foreach (var t in _tasks)
             {
                 //условие "Id"
-                if (t.Id == userId)
+                if (t.User.UserId == userId)
                 {
                     //добавляем совпадение
                     filtered.Add(t);
