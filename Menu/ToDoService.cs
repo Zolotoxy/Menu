@@ -14,10 +14,6 @@ namespace Menu
          public const int MAX_LENGHT_TASK = 100;
         //миниимальное количество символов задачи
         public const int MIN_LENGHT_TASK = 1;
-        //кол-во задач введённое пользователем
-        public int InputCountTasks {  get; set; }
-        //введённая длина символов задачи
-        public int InputLenghtTask { get; set; }
         //Список задач
         private List<ToDoItem> _tasks = new List<ToDoItem>();
         public void isDublicate(string? task)
@@ -92,45 +88,17 @@ namespace Menu
         //проверка максим кол-во задач
         public void isMaxCountTasks()
         {
-            if (_tasks.Count >= InputCountTasks)
+            if (_tasks.Count >= MAX_TASKS)
             {
-                throw new ArgumentException($"Превышено максимальное количество задач равное: {InputCountTasks}");
+                throw new ArgumentException($"Превышено максимальное количество задач равное: {MAX_TASKS}");
             }
         }
         //проверка на максим длинну символов задачи
         public void isMaxLenghtTask(string? task)
         {
-            if (task?.Length >= InputLenghtTask)
+            if (task?.Length >= MAX_LENGHT_TASK)
             {
-                throw new ArgumentException($"Длинна задачи {InputLenghtTask} превышает максимально допустимое значение {MAX_LENGHT_TASK}");
-            }
-        }
-        /// <summary>
-        /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
-        /// </summary>
-        public void ParseAndValidateCountInt(string? str)
-        {
-            if (int.TryParse(str, out int i) && (i > MIN_TASKS && i <= MAX_TASKS))
-            {
-                InputCountTasks = i;
-            }
-            else
-            {
-                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
-            }
-        }
-        /// <summary>
-        /// Приводим строку к int и проверяет на нахождение в диапазон и выдаём ошибку ели не проходит
-        /// </summary>
-        public void ParseAndValidateLenghtInt(string? str)
-        {
-            if (int.TryParse(str, out int i) && (i > MIN_LENGHT_TASK && i <= MAX_LENGHT_TASK))
-            {
-                InputLenghtTask = i;
-            }
-            else
-            {
-                throw new ArgumentException("Вы ввели недопустимое значение, пожалуйста попробуйте ещё раз.");
+                throw new ArgumentException($"Длинна задачи {task?.Length} превышает максимально допустимое значение {MAX_LENGHT_TASK}");
             }
         }
     }

@@ -5,6 +5,7 @@ using static System.Console;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
 
+
 namespace Menu
 {
     
@@ -30,48 +31,31 @@ namespace Menu
         }
         public async void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
         {
-            try
-            {   //Инициализация параметров при старте
-                InputAndInutialyzeParametrs(_itemService, botClient, update);
 
+            try
+            {
+                if (_start)
+                {
+                    
+                    botClient.SendMessage(update.Message.Chat, "Здравтсвуйте! " + NOT_NAME);
+                    _start = false;
+                }
                 //Обработка комманд
-                _currentUser = ExecuteCommand(_userService, ref _start, botClient, update, _itemService, _currentUser);
+                _currentUser = ExecuteCommand(_userService, botClient, update, _itemService, _currentUser);
             }
             
             catch (ArgumentException ex)
             {
                 botClient.SendMessage(update.Message.Chat, ex.Message);
             }
-            
-        }
-        /// <summary>
-        /// Инициализация кол-во задач и длинны задачи при старте программы 
-        /// </summary>
-        static void InputAndInutialyzeParametrs(IToDoService _itemService, ITelegramBotClient botClient, Update update)
-        {
-            if (_itemService.InputCountTasks == 0)
-            {
-                botClient.SendMessage(update.Message.Chat, "Введите максимальное допустимое количество задач от 1 до 100:");
-                var str = ReadLine();
-                _itemService.ParseAndValidateCountInt(str);
-            }
-
-            if (_itemService.InputLenghtTask == 0)
-            {
-                botClient.SendMessage(update.Message.Chat, "Введите максимально допустимую длинну символов задачи от 1 до 100:");
-                var str = ReadLine();
-                _itemService.ParseAndValidateLenghtInt(str);
-
-                //приветствие
-                botClient.SendMessage(update.Message.Chat, "Здравтсвуйте! " + NOT_NAME);
-            }
-        }
+        }        
         /// <summary>
         /// Обработка комманд
         /// </summary>
-        static ToDoUser ExecuteCommand(IUserService _userService, ref bool start, ITelegramBotClient botClient, Update update, IToDoService _itemService, ToDoUser _currentUser)
+        static ToDoUser ExecuteCommand(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService, ToDoUser _currentUser)
         {
             botClient.SendMessage(update.Message.Chat, "Для дальнейшей работы введите команду.");
+
             var input = ReadLine();
             //проверяем
             ValidateString(input);
@@ -81,20 +65,15 @@ namespace Menu
             //авторизоваться
             switch (cmd[0].ToLower())
             {
-
+                //авторизация пользователя
                 case "/start":
-                    //if (currentUser != null)
-                    //{
-                    //    botClient.SendMessage(update.Message.Chat, $"Вы уже зарегестрированы как {currentUser.TelegramUserName}.");
-                    //    break;
-                    //}
                     _currentUser = ExecuteStartCommand(_userService, botClient, update, _currentUser);
                     break;
 
                 //получить инструкцию как пользоваться программой
                 case "/help":
 
-                    ExecuteHelpCommand(_userService, botClient, update);
+                    ExecuteHelpCommand(_userService, botClient, update, _currentUser);
                     break;
                 //получить информацию о программе
                 case "/info":
@@ -129,7 +108,7 @@ namespace Menu
                 //выход пользователя из программы
                 case "/exit":
 
-                    ExecuteExitCommand(ref start);
+                    ExecuteExitCommand();
                     break;
                 //если ввёл неправильно команду
                 default:
@@ -137,8 +116,8 @@ namespace Menu
                     botClient.SendMessage(update.Message.Chat, "Извините, но такой команды \"" + input + "\" не существует!");
                     break;
             }
-            return _currentUser;
 
+            return _currentUser;
         }
 
         /// <summary>
@@ -156,7 +135,7 @@ namespace Menu
         /// </summary>
         static ToDoUser ExecuteStartCommand(IUserService _userService, ITelegramBotClient botClient, Update update, ToDoUser _currentUser)
         {
-            var user = _userService.GetUser(update.Message.Id);
+            var user = _userService.GetUser(update.Message.From.Id);
             if (user == null)
             {
                 _currentUser = _userService.RegisterUser(update.Message.From.Id, update.Message.From.Username);
@@ -168,23 +147,18 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Help
         /// </summary>
-        static void ExecuteHelpCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
+        static void ExecuteHelpCommand(IUserService _userService, ITelegramBotClient botClient, Update update, ToDoUser _currentUser)
         {
-            var name = "";
-            if (update.Message.From.Username == null)
-            {
-                name = update.Message.From.Username;
-            }
-
+            var name = _currentUser?.TelegramUserName?? "Пользователь";
+            
             botClient.SendMessage(update.Message.Chat, name + " Вот список команд:\n" +
                               "/start: Авторизация, ввод имени пользователя.\n" +
                               "/help: Отображает краткую справочную информацию о том, как пользоваться программой.\n" +
-                              "/info: Предоставляет информацию о версии программы и дате её создания.\n" +
-                              "/echo: Команда доступна после авторизации. При вводе этой команды с аргументом \"/echo Hello\" программа возвращает текст \"Hello\")\n" +
-                              "/addtask: Команда доступна после авторизации. Добавление задачи в список.\n" +
+                              "/info: Предоставляет информацию о версии программы и дате её создания.\n" +                              
+                              "/addtask \"Название задачи\": Команда доступна после авторизации. Добавление задачи в список.\n" +
                               "/showtasks: Команда доступна после авторизации. Показать задачи в списоке у которых статус \"Актив\".\n" +
-                              "/removetask: Команда доступна после авторизации. Удалить задачу в списоке.\n" +
-                              "/completetask: Команда доступна после авторизации. Переводит задачу в статус \"Выполнено\".\n" +
+                              "/removetask \"Id задачи\": Команда доступна после авторизации. Удалить задачу в списоке.\n" +
+                              "/completetask \"Id задачи\": Команда доступна после авторизации. Переводит задачу в статус \"Выполнено\".\n" +
                               "/showalltasks: Команда доступна после авторизации. Показывает задачи с любым статусом.\n" +
                               "/exit: Выход из программы.\n");
         }
@@ -193,14 +167,18 @@ namespace Menu
         /// </summary>
         static void ExecuteInfoCommand(IUserService _userService, ITelegramBotClient botClient, Update update)
         {
-            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.7; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, update.Message.From.Username + " Версия ПО: 1.2.8; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
         static void ExecuteAddtaskCommand(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService, string[] cmd, ToDoUser _currentUser)
         {
-            //botClient.SendMessage(update.Message.Chat, "Пожалуйста, введите описание задачи:");
+            if (cmd.Length < 2)
+            {
+                throw new ArgumentException("Вы не ввели название задачи. Повторите снова.");
+            }
+
             var task = cmd[1];
             //Проверяем
             ValidateString(task);
@@ -223,10 +201,15 @@ namespace Menu
         /// Выполнение команды Removetask
         /// </summary>
         static void ExecuteRemovetaskCommand(ITelegramBotClient botClient, Update update, IToDoService _itemService, string[] cmd, IUserService _userService)
-        {
+        { 
+            if (cmd.Length < 2)
+            {
+                throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
+            }
+
             var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
             //Проверка на наличие задач
-            if (tasks.Count >= 1)
+            if (tasks.Any())
             {
                 if (!Guid.TryParse(cmd?[1], out Guid id))
                 {
@@ -246,7 +229,7 @@ namespace Menu
         static void ExecuteShowActiveTasks(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService, ToDoUser _currentUser)
         {
             var tasks = _itemService.GetActiveByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Count >= 1)
+            if (tasks.Any())
             {
                 var j = 1;
                 foreach (var t in tasks)
@@ -266,6 +249,11 @@ namespace Menu
         /// </summary>
         static void ExecuteCompletetaskCommand(string[]? cmd, IToDoService _itemService)
         {
+            if (cmd.Length < 2)
+            {
+                throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
+            }
+
             if (!Guid.TryParse(cmd?[1], out Guid id))
             {
                 throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
@@ -278,7 +266,7 @@ namespace Menu
         static void ExecuteShowAllTasksCommand(IUserService _userService, ITelegramBotClient botClient, Update update, IToDoService _itemService)
         {
             var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Count >= 1)
+            if (tasks.Any())
             {
                 var j = 1;
                 foreach (var t in tasks)
@@ -295,9 +283,9 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Exit
         /// </summary>
-        static void ExecuteExitCommand(ref bool start)
+        static void ExecuteExitCommand()
         {
-            start = false;
+            ;
         }
     }
 }
