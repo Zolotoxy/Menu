@@ -34,7 +34,22 @@ namespace Menu
 
             botClient.StartReceiving(handler);
 
-          
+            while (true)
+            {
+                
+                try
+                {
+                    
+                }
+
+                catch (Exception ex)
+                {
+                    WriteLine(ex.Message + ' ' + ex.GetType());
+                    WriteLine(ex.Message + ' ' + ex.StackTrace);
+                    WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
+                    //throw;
+                }
+            }
         }
     }
 }
