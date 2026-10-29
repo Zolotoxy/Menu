@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="../../Otus.ToDoList.ConsoleBot/Otus.ToDoList.ConsoleBot.csproj" />
   <Project Path="Menu/Menu.csproj" />
 </Solution>
