@@ -21,34 +21,24 @@ namespace Menu
 
     internal class Program
     {
-        
+
         static void Main(string[] args)
         {
-            
-            var userService = new UserService();
-            var itemService = new ToDoService();
-
-            var handler = new UpdateHandler(userService, itemService);
-
-            var botClient = new ConsoleBotClient();
-
-            botClient.StartReceiving(handler);
-
-            while (true)
+            try
             {
-                
-                try
-                {
-                    
-                }
+                var userService = new UserService();
+                var itemService = new ToDoService();
 
-                catch (Exception ex)
-                {
-                    WriteLine(ex.Message + ' ' + ex.GetType());
-                    WriteLine(ex.Message + ' ' + ex.StackTrace);
-                    WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
-                    //throw;
-                }
+                var handler = new UpdateHandler(userService, itemService);
+
+                var botClient = new ConsoleBotClient();
+
+                botClient.StartReceiving(handler);
+            }
+
+            catch (Exception ex)
+            {
+                WriteLine($"{ex.Message}; {ex?.InnerException?.Message}");
             }
         }
     }
