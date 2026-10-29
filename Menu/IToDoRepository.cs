@@ -6,6 +6,7 @@ namespace Menu
 {
     internal interface IToDoRepository
     {
+        //Возвращает все задачи ToDoItem для UserId
         IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
         //Возвращает ToDoItem для UserId со статусом Active
         IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
@@ -17,5 +18,6 @@ namespace Menu
         bool ExistsByName(Guid userId, string name);
         //Возвращает количество активных задач у пользователя
         int CountActive(Guid userId);
+        
     }
 }

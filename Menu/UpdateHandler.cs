@@ -16,21 +16,24 @@ namespace Menu
         //отображение команд без авторизации
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n";
         //отображение команд после авторизации
-        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks";
+        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks\n/report";
         //Хранилище пользователей
         private  IUserService _userService;
         //Хранилище задач
         private IToDoService _itemService;
+        //отчёты
+        private IToDoReportService _reportService;
         //текущий пользователь
         private ToDoUser _currentUser;
         //_cmd[0] -команда, _cmd[1] -аргумент
         private string[]? _cmd;
 
         //Конструктор
-        public UpdateHandler(IUserService userService, IToDoService itemService)
+        public UpdateHandler(IUserService userService, IToDoService itemService, IToDoReportService reportService)
         {
             _userService = userService;
             _itemService = itemService;
+            _reportService = reportService;
         }
         public async void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
         {
@@ -108,6 +111,11 @@ namespace Menu
 
                     ExecuteShowAllTasksCommand(botClient, update);
                     break;
+                //Статистика по задачам
+                case "/report":
+
+                    ExecuteReportTasksCommand(botClient, update);
+                    break;
                 //выход пользователя из программы
                 case "/exit":
 
@@ -163,6 +171,7 @@ namespace Menu
                               "/removetask \"Id задачи\": Команда доступна после авторизации. Удалить задачу в списоке.\n" +
                               "/completetask \"Id задачи\": Команда доступна после авторизации. Переводит задачу в статус \"Выполнено\".\n" +
                               "/showalltasks: Команда доступна после авторизации. Показывает задачи с любым статусом.\n" +
+                              "/report: Команда доступна после авторизации. Показывает статистику по задачам.\n" +
                               "/exit: Выход из программы.\n");
         }
         /// <summary>
@@ -171,7 +180,7 @@ namespace Menu
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.2.9; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.3; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
@@ -268,6 +277,26 @@ namespace Menu
         /// Показать все задачи с любым статусом
         /// </summary>
         public void ExecuteShowAllTasksCommand(ITelegramBotClient botClient, Update update)
+        {
+            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
+            if (tasks.Any())
+            {
+                var j = 1;
+                foreach (var t in tasks)
+                {
+                    botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
+                    j++;
+                }
+            }
+            else
+            {
+                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+            }
+        }     
+        /// <summary>
+        /// Показать статистику по задачам
+        /// </summary>
+        public void ExecuteReportTasksCommand(ITelegramBotClient botClient, Update update)
         {
             var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
             if (tasks.Any())
