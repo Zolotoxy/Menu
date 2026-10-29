@@ -23,6 +23,9 @@ namespace Menu
         private IToDoService _itemService;
         //текущий пользователь
         private ToDoUser _currentUser;
+        //_cmd[0] -команда, _cmd[1] -аргумент
+        private string[]? _cmd;
+
         //Конструктор
         public UpdateHandler(IUserService userService, IToDoService itemService)
         {
@@ -57,14 +60,13 @@ namespace Menu
 
             var input = update.Message.Text;
             
-            //var input = ReadLine();
             //проверяем
             ValidateString(input);
-            //разбитие строки на команду и аргумент, cmd[0] -команда, cmd[1] -аргумент
-            var cmd = input.Split(" ", 2);
+            //разбитие строки на команду и аргумент, _cmd[0] -команда, _cmd[1] -аргумент
+            _cmd = input.Split(" ", 2);
 
             //авторизоваться
-            switch (cmd[0].ToLower())
+            switch (_cmd[0].ToLower())
             {
                 //авторизация пользователя
                 case "/start":
@@ -84,7 +86,7 @@ namespace Menu
                 //добавить задачи в список
                 case "/addtask":
 
-                    ExecuteAddtaskCommand(botClient, update, cmd);
+                    ExecuteAddtaskCommand(botClient, update);
                     break;
                 //показать задачи из списка
                 case "/showtasks":
@@ -94,12 +96,12 @@ namespace Menu
                 //удалить задачу из списка
                 case "/removetask":
 
-                    ExecuteRemovetaskCommand(botClient, update, cmd);
+                    ExecuteRemovetaskCommand(botClient, update);
                     break;
                 //Найти задачу по Id
                 case "/completetask":
 
-                    ExecuteCompletetaskCommand(cmd);
+                    ExecuteCompletetaskCommand();
                     break;
                 //Показать все задачи с любым статусом
                 case "/showalltasks":
@@ -174,14 +176,14 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
-        public void ExecuteAddtaskCommand(ITelegramBotClient botClient, Update update, string[] cmd)
+        public void ExecuteAddtaskCommand(ITelegramBotClient botClient, Update update)
         {
-            if (cmd.Length < 2)
+            if (_cmd.Length < 2)
             {
                 throw new ArgumentException("Вы не ввели название задачи. Повторите снова.");
             }
 
-            var task = cmd[1];
+            var task = _cmd[1];
             //Проверяем
             ValidateString(task);
 
@@ -202,9 +204,9 @@ namespace Menu
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
-        public void ExecuteRemovetaskCommand(ITelegramBotClient botClient, Update update, string[] cmd)
+        public void ExecuteRemovetaskCommand(ITelegramBotClient botClient, Update update)
         { 
-            if (cmd.Length < 2)
+            if (_cmd.Length < 2)
             {
                 throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
             }
@@ -213,9 +215,9 @@ namespace Menu
             //Проверка на наличие задач
             if (tasks.Any())
             {
-                if (!Guid.TryParse(cmd?[1], out Guid id))
+                if (!Guid.TryParse(_cmd?[1], out Guid id))
                 {
-                    throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
+                    throw new ArgumentException($"Некорректный Id {_cmd?[1]}.");
                 }
                 _itemService.Delete(id);
                 botClient.SendMessage(update.Message.Chat, $"Задача удалена.");
@@ -249,16 +251,16 @@ namespace Menu
         /// <summary>
         /// Найти задачу по ID
         /// </summary>
-        public void ExecuteCompletetaskCommand(string[]? cmd)
+        public void ExecuteCompletetaskCommand()
         {
-            if (cmd.Length < 2)
+            if (_cmd.Length < 2)
             {
                 throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
             }
 
-            if (!Guid.TryParse(cmd?[1], out Guid id))
+            if (!Guid.TryParse(_cmd?[1], out Guid id))
             {
-                throw new ArgumentException($"Некорректный Id {cmd?[1]}.");
+                throw new ArgumentException($"Некорректный Id {_cmd?[1]}.");
             }
             _itemService.MarkCompleted(id);
         }
