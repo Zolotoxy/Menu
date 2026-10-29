@@ -11,6 +11,13 @@ namespace Menu
     {
         //Список пользователей
         private readonly Dictionary<long, ToDoUser> _users = new Dictionary<long, ToDoUser>();
+        IUserRepository _repository;
+
+        public UserService(IUserRepository repository)
+        {
+            _repository = repository;
+        }
+
         //Поиск пользователя
         public ToDoUser? GetUser(long telegramUserId)
         {
