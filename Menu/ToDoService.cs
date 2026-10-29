@@ -16,6 +16,13 @@ namespace Menu
         public const int MIN_LENGHT_TASK = 1;
         //Список задач
         private List<ToDoItem> _tasks = new List<ToDoItem>();
+        private IToDoRepository _itemRepository;
+
+        public ToDoService(IToDoRepository itemRepository)
+        {
+            _itemRepository = itemRepository;
+        }
+
         public void isDublicate(string? task)
         {
             //Проверка на дубликаты задач

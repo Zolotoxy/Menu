@@ -6,7 +6,7 @@ namespace Menu
 {
     internal class InMemoryUserRepository : IUserRepository
     {
-        private List<ToDoUser> users;
+        private List<ToDoUser> users = new List<ToDoUser>();
         public void Add(ToDoUser user)
         {
             throw new NotImplementedException();

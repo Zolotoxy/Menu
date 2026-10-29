@@ -27,8 +27,9 @@ namespace Menu
             try
             {
                 var userRepositiry = new InMemoryUserRepository();
+                var itemRepository = new InMemoryToDoRepository();
                 var userService = new UserService(userRepositiry);
-                var itemService = new ToDoService();
+                var itemService = new ToDoService(itemRepository);
 
                 var handler = new UpdateHandler(userService, itemService);
 
