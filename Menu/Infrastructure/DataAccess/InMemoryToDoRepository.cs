@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Menu.Core.DataAccess;
+using Menu.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Menu
+namespace Menu.Infrastructure.DataAccess
 {
     internal class InMemoryToDoRepository : IToDoRepository
     {

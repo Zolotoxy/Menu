@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Menu
+namespace Menu.Core.Exceptions
 {
     public class DublicateTaskException : Exception
     {

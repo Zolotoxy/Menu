@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Menu.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Menu
+namespace Menu.Core.DataAccess
 {
     internal interface IUserRepository
     {

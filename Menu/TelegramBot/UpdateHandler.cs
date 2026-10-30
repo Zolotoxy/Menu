@@ -4,9 +4,11 @@ using System.Text;
 using static System.Console;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
+using Menu.Core.Entities;
+using Menu.Core.Services;
 
 
-namespace Menu
+namespace Menu.TelegramBot
 {
     
     internal class UpdateHandler : IUpdateHandler
@@ -186,7 +188,7 @@ namespace Menu
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.3; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.5; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask

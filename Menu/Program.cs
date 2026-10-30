@@ -15,6 +15,9 @@ using static System.Net.Mime.MediaTypeNames;
 using static System.Console;
 using Otus.ToDoList.ConsoleBot;
 using Otus.ToDoList.ConsoleBot.Types;
+using Menu.Infrastructure.DataAccess;
+using Menu.Core.Services;
+using Menu.TelegramBot;
 
 namespace Menu
 {
