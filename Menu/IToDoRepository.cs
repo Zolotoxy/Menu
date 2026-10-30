@@ -10,6 +10,10 @@ namespace Menu
         IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
         //Возвращает ToDoItem для UserId со статусом Active
         IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
+        //Возвращает задачи пользователя которые удовлетворяют предикату
+        IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate);
+        //Возвращает все задачи пользвателя котор начинаются на namePrefix
+        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
         ToDoItem? Get(Guid id);
         void Add(ToDoItem item);
         void Update(ToDoItem item);

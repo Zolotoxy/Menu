@@ -27,6 +27,16 @@ namespace Menu
             throw new NotImplementedException();
         }
 
+        public IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
+        {
+            throw new NotImplementedException();
+        }
+
         public ToDoItem? Get(Guid id)
         {
             throw new NotImplementedException();

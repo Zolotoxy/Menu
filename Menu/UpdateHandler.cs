@@ -116,6 +116,11 @@ namespace Menu
 
                     ExecuteReportTasksCommand(botClient, update);
                     break;
+                //Показывает все задачи по предикату или имени
+                case "/find":
+
+                    ExecuteFindTasksCommand(botClient, update);
+                    break;
                 //выход пользователя из программы
                 case "/exit":
 
@@ -172,6 +177,7 @@ namespace Menu
                               "/completetask \"Id задачи\": Команда доступна после авторизации. Переводит задачу в статус \"Выполнено\".\n" +
                               "/showalltasks: Команда доступна после авторизации. Показывает задачи с любым статусом.\n" +
                               "/report: Команда доступна после авторизации. Показывает статистику по задачам.\n" +
+                              "/find \"Имя\": Команда доступна после авторизации. Показывает все задачи по предикату или имени.\n" +
                               "/exit: Выход из программы.\n");
         }
         /// <summary>
@@ -297,6 +303,27 @@ namespace Menu
         /// Показать статистику по задачам
         /// </summary>
         public void ExecuteReportTasksCommand(ITelegramBotClient botClient, Update update)
+        {
+            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
+            if (tasks.Any())
+            {
+                var j = 1;
+                foreach (var t in tasks)
+                {
+                    botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
+                    j++;
+                }
+            }
+            else
+            {
+                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+            }
+        }
+
+        /// <summary>
+        /// Показывает все задачи по предикату или имени
+        /// </summary>
+        public void ExecuteFindTasksCommand(ITelegramBotClient botClient, Update update)
         {
             var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
             if (tasks.Any())
