@@ -75,7 +75,7 @@ namespace Menu.TelegramBot
             {
                 //авторизация пользователя
                 case "/start":
-                    _currentUser = ExecuteStartCommand(botClient, update);
+                    ExecuteStartCommand(botClient, update);
                     break;
 
                 //получить инструкцию как пользоваться программой
@@ -151,16 +151,14 @@ namespace Menu.TelegramBot
         /// <summary>
         /// Выполнение команды Start
         /// </summary>
-        public ToDoUser ExecuteStartCommand(ITelegramBotClient botClient, Update update)
+        public void ExecuteStartCommand(ITelegramBotClient botClient, Update update)
         {
-            var user = _userService.GetUser(update.Message.From.Id);
-            if (user == null)
+            //var user = _userService.GetUser(update.Message.From.Id);
+            if (_currentUser == null)
             {
                 _currentUser = _userService.RegisterUser(update.Message.From.Id, update.Message.From.Username);
             }
             botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {_currentUser.TelegramUserName} !\nУважаемый  {_currentUser.TelegramUserName} ," + IS_NAME);
-            return _currentUser;
-            //return currentUser;
         }
         /// <summary>
         /// Выполнение команды Help
@@ -188,7 +186,7 @@ namespace Menu.TelegramBot
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.5; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.6; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask

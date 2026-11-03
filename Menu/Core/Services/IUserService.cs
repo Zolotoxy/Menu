@@ -10,9 +10,11 @@ namespace Menu.Core.Services
     /// </summary>
     internal interface IUserService
     {
-        //регистрация
+        //регистрация пользователя
         ToDoUser RegisterUser(long telegramUserId, string telegramUserName);
-        //поиск
+        //поиск пользователя по telegramUserId
         ToDoUser? GetUser(long telegramUserId);
+        //поиск пользователя по userId
+        ToDoUser? GetUser(Guid userId);
     }
 }

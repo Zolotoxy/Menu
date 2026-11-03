@@ -7,12 +7,12 @@ using System.Text;
 namespace Menu.Core.Services
 {
     /// <summary>
-    /// Хранилище пользователей
+    /// Работа с хранилицем пользователей
     /// </summary>
     internal class UserService : IUserService
     {
         //Список пользователей
-        private readonly Dictionary<long, ToDoUser> _users = new Dictionary<long, ToDoUser>();
+        //private readonly Dictionary<long, ToDoUser> _users = new Dictionary<long, ToDoUser>();
         IUserRepository _repository;
 
         public UserService(IUserRepository repository)
@@ -20,22 +20,59 @@ namespace Menu.Core.Services
             _repository = repository;
         }
 
-        //Поиск пользователя
+        //поиск пользователя по telegramUserId
         public ToDoUser? GetUser(long telegramUserId)
         {
-            return _users.TryGetValue(telegramUserId, out var user) ? user : null;
+            var user = _repository.GetUserByTelegramUserId(telegramUserId);
+            if (user is not null)
+            {
+                return user;
+            }
+            else
+            {
+                throw new Exception($"Пользователя с \"{telegramUserId}\" не существует.");
+            }
         }
+        //поиск пользователя по userId
+        public ToDoUser? GetUser(Guid userId)
+        {
+            var user = _repository.GetUser(userId);
+            if (user is not null)
+            {
+                return user;
+            }
+            else
+            {
+                throw new Exception($"Пользователя с \"{userId}\" не существует.");
+            }
+        }
+
         //Добавления пользователя в список и проверка на существующего
         public ToDoUser RegisterUser(long telegramUserId, string telegramUserName)
         {
-            if (_users.TryGetValue(telegramUserId, out var existing))
+            var existing = _repository.GetUserByTelegramUserId(telegramUserId);
+            if (existing is not null)
             {
                 return existing;
             }
             var user = new ToDoUser(telegramUserName, telegramUserId);
-            _users[telegramUserId] = user;
-
+            _repository.Add(user);
             return user;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
