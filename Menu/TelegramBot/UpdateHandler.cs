@@ -186,7 +186,7 @@ namespace Menu.TelegramBot
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.6; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.7; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
@@ -203,17 +203,14 @@ namespace Menu.TelegramBot
             ValidateString(task);
 
             //Проверка на установленное количество задач
-            _itemService.isMaxCountTasks();
+            _itemService.isMaxCountTasks(_currentUser);
 
             //Проверка на установленную длинну задачи 
             _itemService.isMaxLenghtTask(task);
-
-            //Проверка на дубликаты задач
-            _itemService.isDublicate(task);
-            
+ 
             //Добавляем задачу в список
             var t = _itemService.Add(_currentUser, task);
-            //tasks.Add(t);
+
             botClient.SendMessage(update.Message.Chat, "\nЗадача \"" + t.Name + "\" добавлена.\n");
         }
         /// <summary>

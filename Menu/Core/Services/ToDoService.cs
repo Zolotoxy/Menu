@@ -1,5 +1,6 @@
 ﻿using Menu.Core.DataAccess;
 using Menu.Core.Entities;
+using Otus.ToDoList.ConsoleBot.Types;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,87 +18,67 @@ namespace Menu.Core.Services
         //миниимальное количество символов задачи
         public const int MIN_LENGHT_TASK = 1;
         //Список задач
-        private List<ToDoItem> _tasks = new List<ToDoItem>();
+        //private List<ToDoItem> _tasks = new List<ToDoItem>();
+        //Хранилище задач
         private IToDoRepository _itemRepository;
 
         public ToDoService(IToDoRepository itemRepository)
         {
             _itemRepository = itemRepository;
         }
-
-        public void isDublicate(string? task)
+        //Проверка на дубликаты задач
+        public bool isDublicate(Guid userId, string name)
         {
-            //Проверка на дубликаты задач
-            if (_tasks.Exists(t => t.Name.Contains(task, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ArgumentException($"Задача {task} уже существует", task);
-            }            
+            return _itemRepository.ExistsByName(userId, name);
         }
+        //Добавить задачу
         public ToDoItem Add(ToDoUser user, string name)
         {
-            var item = new ToDoItem(user, name);
-            _tasks.Add(item);
-            return item;
+            if (isDublicate(user.UserId, name))
+            {
+                throw new ArgumentException($"Задача \"{name}\" у пользователя с Id \"{user.UserId}\" существует.");
+            }
+            else
+            {
+                var item = new ToDoItem(user, name);
+                _itemRepository.Add(item);
+                return item;
+            }
         }
         //удалить задачу по id
         public void Delete(Guid id)
         {
-            var taskFound = _tasks.Find(t => t.Id == id);
-            if (taskFound != null)
-            {
-                _tasks.Remove(taskFound);
-            }
-            else
-            {
-                throw new ArgumentException("Задача с таким ID не найдена. пожалуйста попробуйте ещё раз.");
-            }
+            _itemRepository.Delete(id);
+            //var taskFound = _tasks.Find(t => t.Id == id);
+            //if (taskFound != null)
+            //{
+            //    _tasks.Remove(taskFound);
+            //}
+            //else
+            //{
+            //    throw new ArgumentException("Задача с таким ID не найдена. пожалуйста попробуйте ещё раз.");
+            //}
         }
         //Возвращает ToDoItem для UserId со статусом Active
         public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
         {
-            //новый список для отсортировки со статусом "актив" и Id
-            List<ToDoItem> filtered = new List<ToDoItem>();
-
-            foreach (var t in _tasks)
-            {
-                //условие статус "Актив" и "Id"
-                if (t.User.UserId == userId && t.State == ToDoItemState.Active)
-                {
-                    //добавляем совпадение
-                    filtered.Add(t);
-                }
-            }
-            return filtered;
-            
+            return _itemRepository.GetActiveByUserId(userId);            
         }
         //Возвращает ToDoItem для UserId с любым статусом
         public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
         {
-            //новый список для отсортировки по Id
-            List<ToDoItem> filtered = new List<ToDoItem>();
-
-            foreach (var t in _tasks)
-            {
-                //условие "Id"
-                if (t.User.UserId == userId)
-                {
-                    //добавляем совпадение
-                    filtered.Add(t);
-                }
-            }
-            return filtered;
+            return _itemRepository.GetAllByUserId(userId);
         }
         //Отметить задачу "Выполнено"
         public void MarkCompleted(Guid id)
         {
-            var t = _tasks.FirstOrDefault(t => t.Id == id);
-            t?.State = ToDoItemState.Completed;
-            t?.StateChangedAt = DateTime.UtcNow;
+            var task = Get(id);
+            _itemRepository.Update(task);
         }
         //проверка максим кол-во задач
-        public void isMaxCountTasks()
+        public void isMaxCountTasks(ToDoUser user)
         {
-            if (_tasks.Count >= MAX_TASKS)
+            if (_itemRepository.GetAllByUserId(user.UserId).Count >= MAX_TASKS)
             {
                 throw new ArgumentException($"Превышено максимальное количество задач равное: {MAX_TASKS}");
             }
@@ -108,6 +89,19 @@ namespace Menu.Core.Services
             if (task?.Length >= MAX_LENGHT_TASK)
             {
                 throw new ArgumentException($"Длинна задачи {task?.Length} превышает максимально допустимое значение {MAX_LENGHT_TASK}");
+            }
+        }
+        //Возвращает задачу по id
+        public ToDoItem? Get(Guid id)
+        {
+            var item = _itemRepository.Get(id);
+            if (item is not null)
+            {
+                return item;
+            }
+            else
+            {
+                throw new ArgumentException($"Задачи с номером \"{id}\" не существует.");
             }
         }
     }

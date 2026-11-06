@@ -10,10 +10,10 @@ namespace Menu.Core.Services
     /// </summary>
     internal interface IToDoService
     {
-        //Проверка на одинаковые задачи
-        void isDublicate(string? task);
+        //Проверка на одинаковые задачи у пользователя
+        bool isDublicate (Guid userId, string name);
         //проверка максим кол-во задач
-        void isMaxCountTasks();
+        void isMaxCountTasks(ToDoUser user);
         //проверка на максим длинну символов задачи
         void isMaxLenghtTask(string? task);
         //Возвращает ToDoItem для UserId с любым статусом
@@ -26,5 +26,7 @@ namespace Menu.Core.Services
         void MarkCompleted(Guid id);
         //Удалить задачу
         void Delete(Guid id);
+        //Возвращает задачу по id
+        public ToDoItem? Get(Guid id);
     }
 }

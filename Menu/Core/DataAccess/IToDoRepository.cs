@@ -15,9 +15,13 @@ namespace Menu.Core.DataAccess
         IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate);
         //Возвращает все задачи пользвателя котор начинаются на namePrefix
         IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
+        //Возвращает задачу по id
         ToDoItem? Get(Guid id);
+        //Добавление задачи 
         void Add(ToDoItem item);
+        //Обносление задачи
         void Update(ToDoItem item);
+        //удаление задачи
         void Delete(Guid id);
         //Проверяет есть ли задача с таким именем у пользователя
         bool ExistsByName(Guid userId, string name);
