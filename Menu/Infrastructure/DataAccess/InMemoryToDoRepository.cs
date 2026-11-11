@@ -51,12 +51,12 @@ namespace Menu.Infrastructure.DataAccess
         //Возвращает ToDoItem для UserId со статусом Active
         public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
         {
-            return _tasks.FindAll(t => t.User.UserId == userId && t.State == ToDoItemState.Active);
+            return _tasks.FindAll(t => t.User?.UserId == userId && t.State == ToDoItemState.Active);
         }
         //Возвращает все задачи ToDoItem для UserId
         public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
         {
-            return _tasks.FindAll(t => t.User.UserId == userId);
+            return _tasks.FindAll(t => t.User?.UserId == userId);
         }
         //Обносление задачи
         public void Update(ToDoItem item)

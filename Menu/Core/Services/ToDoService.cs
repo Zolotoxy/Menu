@@ -17,10 +17,10 @@ namespace Menu.Core.Services
          public const int MAX_LENGHT_TASK = 100;
         //миниимальное количество символов задачи
         public const int MIN_LENGHT_TASK = 1;
-        //Список задач
-        //private List<ToDoItem> _tasks = new List<ToDoItem>();
         //Хранилище задач
         private IToDoRepository _itemRepository;
+        //Статистика
+       // private IToDoReportService _reportService;
 
         public ToDoService(IToDoRepository itemRepository)
         {
@@ -49,15 +49,6 @@ namespace Menu.Core.Services
         public void Delete(Guid id)
         {
             _itemRepository.Delete(id);
-            //var taskFound = _tasks.Find(t => t.Id == id);
-            //if (taskFound != null)
-            //{
-            //    _tasks.Remove(taskFound);
-            //}
-            //else
-            //{
-            //    throw new ArgumentException("Задача с таким ID не найдена. пожалуйста попробуйте ещё раз.");
-            //}
         }
         //Возвращает ToDoItem для UserId со статусом Active
         public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)

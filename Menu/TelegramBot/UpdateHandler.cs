@@ -23,7 +23,7 @@ namespace Menu.TelegramBot
         private  IUserService _userService;
         //Хранилище задач
         private IToDoService _itemService;
-        //отчёты
+        //Статистика пользователя по задачам
         private IToDoReportService _reportService;
         //текущий пользователь
         private ToDoUser _currentUser;
@@ -186,7 +186,7 @@ namespace Menu.TelegramBot
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.7; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.8; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
@@ -301,20 +301,10 @@ namespace Menu.TelegramBot
         /// </summary>
         public void ExecuteReportTasksCommand(ITelegramBotClient botClient, Update update)
         {
-            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Any())
-            {
-                var j = 1;
-                foreach (var t in tasks)
-                {
-                    botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
-                    j++;
-                }
-            }
-            else
-            {
-                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
-            }
+            var (total, completed, active, generatedAt) = _reportService.GetUserStats(_currentUser.UserId);
+
+            botClient.SendMessage(update.Message.Chat, $"Статистика по задачам на {generatedAt}. Всего: {total}; Завершённых: {completed}; Активныых: {active};");
+            
         }
 
         /// <summary>
