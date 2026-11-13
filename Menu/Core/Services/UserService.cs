@@ -55,9 +55,12 @@ namespace Menu.Core.Services
             {
                 return existing;
             }
-            var user = new ToDoUser(telegramUserName, telegramUserId);
-            _repository.Add(user);
-            return user;
+            else
+            {
+                var user = new ToDoUser(telegramUserName, telegramUserId);
+                _repository.Add(user);
+                return user;
+            }
         }
 
 

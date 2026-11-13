@@ -28,5 +28,7 @@ namespace Menu.Core.Services
         void Delete(Guid id);
         //Возвращает задачу по id
         public ToDoItem? Get(Guid id);
+        //Возвращает все задачи пользвателя котор начинаются на namePrefix
+        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
     }
 }

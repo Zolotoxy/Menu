@@ -18,7 +18,7 @@ namespace Menu.TelegramBot
         //отображение команд без авторизации
         const string NOT_NAME = "Введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n";
         //отображение команд после авторизации
-        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks\n/report";
+        const string IS_NAME = "введите пожалуйста команду из списка ниже: \n/start\n/help\n/info\n/exit\n/addtask\n/showtasks\n/removetask\n/completetask\n/showalltasks\n/report\n/find";
         //Хранилище пользователей
         private  IUserService _userService;
         //Хранилище задач
@@ -106,7 +106,7 @@ namespace Menu.TelegramBot
                 //Найти задачу по Id
                 case "/completetask":
 
-                    ExecuteCompletetaskCommand();
+                    ExecuteCompletetaskCommand(botClient, update);
                     break;
                 //Показать все задачи с любым статусом
                 case "/showalltasks":
@@ -154,11 +154,14 @@ namespace Menu.TelegramBot
         public void ExecuteStartCommand(ITelegramBotClient botClient, Update update)
         {
             //var user = _userService.GetUser(update.Message.From.Id);
-            if (_currentUser == null)
+            if (_currentUser is not null)
+            {
+                botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {_currentUser.TelegramUserName} !\nУважаемый  {_currentUser.TelegramUserName} ," + IS_NAME);
+            }
+            else
             {
                 _currentUser = _userService.RegisterUser(update.Message.From.Id, update.Message.From.Username);
             }
-            botClient.SendMessage(update.Message.Chat, $"\nДобро пожаловать {_currentUser.TelegramUserName} !\nУважаемый  {_currentUser.TelegramUserName} ," + IS_NAME);
         }
         /// <summary>
         /// Выполнение команды Help
@@ -186,57 +189,81 @@ namespace Menu.TelegramBot
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.8; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.9; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
         /// </summary>
         public void ExecuteAddtaskCommand(ITelegramBotClient botClient, Update update)
         {
-            if (_cmd.Length < 2)
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                throw new ArgumentException("Вы не ввели название задачи. Повторите снова.");
+                if (_cmd.Length >= 2)
+                {
+                    var task = _cmd[1];
+                    //Проверяем
+                    ValidateString(task);
+
+                    //Проверка на установленное количество задач
+                    _itemService.isMaxCountTasks(_currentUser);
+
+                    //Проверка на установленную длинну задачи 
+                    _itemService.isMaxLenghtTask(task);
+
+                    //Добавляем задачу в список
+                    var t = _itemService.Add(_currentUser, task);
+
+                    botClient.SendMessage(update.Message.Chat, "\nЗадача \"" + t.Name + "\" добавлена.\n");
+                }
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Вы не ввели название задачи. Повторите снова.");
+                }
             }
-
-            var task = _cmd[1];
-            //Проверяем
-            ValidateString(task);
-
-            //Проверка на установленное количество задач
-            _itemService.isMaxCountTasks(_currentUser);
-
-            //Проверка на установленную длинну задачи 
-            _itemService.isMaxLenghtTask(task);
- 
-            //Добавляем задачу в список
-            var t = _itemService.Add(_currentUser, task);
-
-            botClient.SendMessage(update.Message.Chat, "\nЗадача \"" + t.Name + "\" добавлена.\n");
+            else
+            {
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
+            }
         }
         /// <summary>
         /// Выполнение команды Removetask
         /// </summary>
         public void ExecuteRemovetaskCommand(ITelegramBotClient botClient, Update update)
-        { 
-            if (_cmd.Length < 2)
+        {
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
-            }
-
-            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            //Проверка на наличие задач
-            if (tasks.Any())
-            {
-                if (!Guid.TryParse(_cmd?[1], out Guid id))
+                if (_cmd.Length >= 2)
                 {
-                    throw new ArgumentException($"Некорректный Id {_cmd?[1]}.");
+                    var tasks = _itemService.GetAllByUserId(_currentUser.UserId);
+                    //Проверка на наличие задач
+                    if (tasks.Any())
+                    {
+                        if (!Guid.TryParse(_cmd?[1], out Guid id))
+                        {
+                            botClient.SendMessage(update.Message.Chat, $"Некорректный Id {_cmd?[1]}.");
+                        }
+                        else
+                        {
+                            //Удаление задачи с нужным id
+                            _itemService.Delete(id);
+                            botClient.SendMessage(update.Message.Chat, $"Задача удалена.");
+                        }
+                    }
+                    else
+                    {
+                        botClient.SendMessage(update.Message.Chat, "Вам нечего удалить, ваш список задач пуст!");
+                    }
                 }
-                _itemService.Delete(id);
-                botClient.SendMessage(update.Message.Chat, $"Задача удалена.");
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Вы не ввели Id задачи. Повторите снова.");
+                }
             }
             else
             {
-                botClient.SendMessage(update.Message.Chat, "Вам нечего удалить, ваш список задач пуст!");
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
             }
         }
         /// <summary>
@@ -244,88 +271,143 @@ namespace Menu.TelegramBot
         /// </summary>
         public void ExecuteShowActiveTasks(ITelegramBotClient botClient, Update update)
         {
-            var tasks = _itemService.GetActiveByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Any())
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                var j = 1;
-                foreach (var t in tasks)
+                var tasks = _itemService.GetActiveByUserId(_currentUser.UserId);
+                if (tasks.Any())
                 {
-                    botClient.SendMessage(update.Message.Chat, $"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
-                    j++;
+                    var j = 1;
+                    foreach (var t in tasks)
+                    {
+                        botClient.SendMessage(update.Message.Chat, $"{j}. {t.Name} - {t.CreatedAt} - {t.Id}");
+                        j++;
+                    }
+                }
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
                 }
             }
             else
             {
-                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
             }
-
         }
         /// <summary>
         /// Найти задачу по ID
         /// </summary>
-        public void ExecuteCompletetaskCommand()
+        public void ExecuteCompletetaskCommand(ITelegramBotClient botClient, Update update)
         {
-            if (_cmd.Length < 2)
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                throw new ArgumentException("Вы ввели неправильно Id задачи. Повторите снова.");
+                if (_cmd.Length >= 2)
+                {
+                    if (!Guid.TryParse(_cmd?[1], out Guid id))
+                    {
+                        //throw new ArgumentException($"Некорректный Id {_cmd?[1]}.");
+                        botClient.SendMessage(update.Message.Chat, $"Некорректный Id {_cmd?[1]}.");
+                    }
+                    else
+                    {
+                        //Изменение статуса задачи на "Завершённая"
+                        _itemService.MarkCompleted(id);
+                        botClient.SendMessage(update.Message.Chat, $"Задаче {_cmd?[1]}, присвоен статус \"Выполненная\".");
+                    }
+                }
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Вы не ввели Id задачи. Повторите снова.");
+                }                
             }
-
-            if (!Guid.TryParse(_cmd?[1], out Guid id))
+            else
             {
-                throw new ArgumentException($"Некорректный Id {_cmd?[1]}.");
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
             }
-            _itemService.MarkCompleted(id);
+            
         }
         /// <summary>
         /// Показать все задачи с любым статусом
         /// </summary>
         public void ExecuteShowAllTasksCommand(ITelegramBotClient botClient, Update update)
         {
-            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Any())
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                var j = 1;
-                foreach (var t in tasks)
+                var tasks = _itemService.GetAllByUserId(_currentUser.UserId);
+                if (tasks.Any())
                 {
-                    botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
-                    j++;
+                    var j = 1;
+                    foreach (var t in tasks)
+                    {
+                        botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
+                        j++;
+                    }
+                }
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
                 }
             }
             else
             {
-                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
             }
+            
         }     
         /// <summary>
         /// Показать статистику по задачам
         /// </summary>
         public void ExecuteReportTasksCommand(ITelegramBotClient botClient, Update update)
         {
-            var (total, completed, active, generatedAt) = _reportService.GetUserStats(_currentUser.UserId);
+            //Проверка пользователя
+            if (_currentUser is not null)
+            {
+                var (total, completed, active, generatedAt) = _reportService.GetUserStats(_currentUser.UserId);
 
-            botClient.SendMessage(update.Message.Chat, $"Статистика по задачам на {generatedAt}. Всего: {total}; Завершённых: {completed}; Активныых: {active};");
-            
+                botClient.SendMessage(update.Message.Chat, $"Статистика по задачам на {generatedAt}. Всего: {total}; Завершённых: {completed}; Активныых: {active};");
+            }
+            else
+            {
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
+            }
         }
-
         /// <summary>
         /// Показывает все задачи по предикату или имени
         /// </summary>
         public void ExecuteFindTasksCommand(ITelegramBotClient botClient, Update update)
         {
-            var tasks = _itemService.GetAllByUserId(_userService.GetUser(update.Message.From.Id).UserId);
-            if (tasks.Any())
+            //Проверка пользователя
+            if (_currentUser is not null)
             {
-                var j = 1;
-                foreach (var t in tasks)
+                if (_cmd.Length >= 2)
                 {
-                    botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
-                    j++;
+                    var tasks = _itemService.Find(_currentUser, _cmd[1]);
+                    if (tasks.Any())
+                    {
+                        var j = 1;
+                        foreach (var t in tasks)
+                        {
+                            botClient.SendMessage(update.Message.Chat, $"{j}. ({t.State}) {t.Name} - {t.CreatedAt} - {t.Id}");
+                            j++;
+                        }
+                    }
+                    else
+                    {
+                        botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи и повторите снова.");
+                    }
+                }
+                else
+                {
+                    botClient.SendMessage(update.Message.Chat, "Вы не ввели prefix сортировки задачи. Повторите снова.");
                 }
             }
             else
             {
-                botClient.SendMessage(update.Message.Chat, "Ваш список задач пуст! Добавте задачи.");
+                botClient.SendMessage(update.Message.Chat, "Вы не авторизовались, выполните сначала команду /start и повторите снова");
             }
+            
         }
         /// <summary>
         /// Выполнение команды Exit

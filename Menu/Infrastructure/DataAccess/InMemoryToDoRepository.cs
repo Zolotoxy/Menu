@@ -36,12 +36,9 @@ namespace Menu.Infrastructure.DataAccess
         //Возвращает задачи пользователя которые удовлетворяют предикату
         public IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate)
         {
-            throw new NotImplementedException();
-        }
-        //Возвращает все задачи пользвателя котор начинаются на namePrefix
-        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
-        {
-            throw new NotImplementedException();
+            return _tasks
+                .Where(t => t.User.UserId == userId && predicate(t))
+                .ToList();
         }
         //Возвращает задачу по id
         public ToDoItem? Get(Guid id)

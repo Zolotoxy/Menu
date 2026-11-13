@@ -19,8 +19,6 @@ namespace Menu.Core.Services
         public const int MIN_LENGHT_TASK = 1;
         //Хранилище задач
         private IToDoRepository _itemRepository;
-        //Статистика
-       // private IToDoReportService _reportService;
 
         public ToDoService(IToDoRepository itemRepository)
         {
@@ -94,6 +92,17 @@ namespace Menu.Core.Services
             {
                 throw new ArgumentException($"Задачи с номером \"{id}\" не существует.");
             }
+        }
+
+        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
+        {
+            if (user is null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            return _itemRepository.Find(user.UserId,
+                                        item => item.Name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
