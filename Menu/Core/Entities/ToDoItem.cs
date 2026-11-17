@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Menu
+namespace Menu.Core.Entities
 {
     /// <summary>
     /// Регистрация задачи

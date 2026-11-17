@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Menu.Core.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Menu
+namespace Menu.Core.Services
 {
     /// <summary>
     /// Интерфейс работы с задачами
     /// </summary>
     internal interface IToDoService
     {
-        //Проверка на одинаковые задачи
-        void isDublicate(string? task);
+        //Проверка на одинаковые задачи у пользователя
+        bool isDublicate (Guid userId, string name);
         //проверка максим кол-во задач
-        void isMaxCountTasks();
+        void isMaxCountTasks(ToDoUser user);
         //проверка на максим длинну символов задачи
         void isMaxLenghtTask(string? task);
         //Возвращает ToDoItem для UserId с любым статусом
@@ -25,5 +26,9 @@ namespace Menu
         void MarkCompleted(Guid id);
         //Удалить задачу
         void Delete(Guid id);
+        //Возвращает задачу по id
+        public ToDoItem? Get(Guid id);
+        //Возвращает все задачи пользвателя котор начинаются на namePrefix
+        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
     }
 }
