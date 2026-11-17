@@ -189,7 +189,7 @@ namespace Menu.TelegramBot
         public void ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.3.9; Дата создания: 10.10.2026г.\n");
+            botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.4.0; Дата создания: 10.10.2026г.\n");
         }
         /// <summary>
         /// Выполнение команды Addtask
