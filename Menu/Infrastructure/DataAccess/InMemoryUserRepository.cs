@@ -13,8 +13,9 @@ namespace Menu.Infrastructure.DataAccess
     internal class InMemoryUserRepository : IUserRepository
     {
         private readonly List<ToDoUser> _users = new List<ToDoUser>();
+
         //Добавление пользователя в список
-        public void Add(ToDoUser user)
+        public async Task Add(ToDoUser user, CancellationToken ct)
         {
             if (_users.FirstOrDefault(x => x.TelegramUserId == user.TelegramUserId) is not null)
             {
@@ -24,16 +25,20 @@ namespace Menu.Infrastructure.DataAccess
             _users.Add(user);
         }
         //Поиск и возврат пользователя по userId
-        public ToDoUser? GetUser(Guid userId)
+        public Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             var user = _users.FirstOrDefault(x => x.UserId == userId);
-            return user;
+            return Task.FromResult(user);
         }
         //Поиск и возврат пользователя по telegramUserId
-        public ToDoUser? GetUserByTelegramUserId(long telegramUserId)
+        public Task<ToDoUser?> GetUserByTelegramUserId(long telegramUserId, CancellationToken ct)
         {
+            ct.ThrowIfCancellationRequested();
+
             var user = _users.FirstOrDefault(x => x.TelegramUserId == telegramUserId);
-            return user;
+            return Task.FromResult(user);
         }
     }
 }

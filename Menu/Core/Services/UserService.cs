@@ -14,16 +14,15 @@ namespace Menu.Core.Services
         //Список пользователей
         //private readonly Dictionary<long, ToDoUser> _users = new Dictionary<long, ToDoUser>();
         IUserRepository _repository;
-
         public UserService(IUserRepository repository)
         {
             _repository = repository;
         }
 
         //поиск пользователя по telegramUserId
-        public ToDoUser? GetUser(long telegramUserId)
+        public async Task<ToDoUser?> GetUser(long telegramUserId, CancellationToken ct)
         {
-            var user = _repository.GetUserByTelegramUserId(telegramUserId);
+            var user = await _repository.GetUserByTelegramUserId(telegramUserId, ct);
             if (user is not null)
             {
                 return user;
@@ -34,9 +33,9 @@ namespace Menu.Core.Services
             }
         }
         //поиск пользователя по userId
-        public ToDoUser? GetUser(Guid userId)
+        public async Task<ToDoUser?> GetUser(Guid userId, CancellationToken ct)
         {
-            var user = _repository.GetUser(userId);
+            var user = await _repository.GetUser(userId, ct);
             if (user is not null)
             {
                 return user;
@@ -48,9 +47,9 @@ namespace Menu.Core.Services
         }
 
         //Добавления пользователя в список и проверка на существующего
-        public ToDoUser RegisterUser(long telegramUserId, string telegramUserName)
+        public async Task<ToDoUser> RegisterUser(long telegramUserId, string telegramUserName, CancellationToken ct)
         {
-            var existing = _repository.GetUserByTelegramUserId(telegramUserId);
+            var existing = await _repository.GetUserByTelegramUserId(telegramUserId, ct);
             if (existing is not null)
             {
                 return existing;
@@ -58,7 +57,7 @@ namespace Menu.Core.Services
             else
             {
                 var user = new ToDoUser(telegramUserName, telegramUserId);
-                _repository.Add(user);
+                _repository.Add(user, ct);
                 return user;
             }
         }

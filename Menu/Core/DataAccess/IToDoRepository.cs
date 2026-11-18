@@ -8,23 +8,23 @@ namespace Menu.Core.DataAccess
     internal interface IToDoRepository
     {
         //Возвращает все задачи ToDoItem для UserId
-        IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
+        Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct);
         //Возвращает ToDoItem для UserId со статусом Active
-        IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
+        Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct);
         //Возвращает задачи пользователя которые удовлетворяют предикату
-        IReadOnlyList<ToDoItem> Find(Guid userId, Func<ToDoItem, bool> predicate);
+        Task<IReadOnlyList<ToDoItem>> Find(Guid userId, Func<ToDoItem, bool> predicate, CancellationToken ct);
         //Возвращает задачу по id
-        ToDoItem? Get(Guid id);
+        Task<ToDoItem?> Get(Guid id, CancellationToken ct);
         //Добавление задачи 
-        void Add(ToDoItem item);
+        Task Add(ToDoItem item, CancellationToken ct);
         //Обносление задачи
-        void Update(ToDoItem item);
+        Task Update(ToDoItem? item, CancellationToken ct);
         //удаление задачи
-        void Delete(Guid id);
+        Task Delete(Guid id, CancellationToken ct);
         //Проверяет есть ли задача с таким именем у пользователя
-        bool ExistsByName(Guid userId, string name);
+        Task<bool> ExistsByName(Guid userId, string name, CancellationToken ct);
         //Возвращает количество активных задач у пользователя
-        int CountActive(Guid userId);
+        Task<int> CountActive(Guid userId, CancellationToken ct);
         
     }
 }

@@ -9,10 +9,10 @@ namespace Menu.Core.DataAccess
     internal interface IUserRepository
     {
         //Поиск и возврат пользователя по userId
-        ToDoUser? GetUser(Guid userId);
+        Task<ToDoUser>? GetUser(Guid userId, CancellationToken ct);
         //Поиск и возврат пользователя по telegramUserId
-        ToDoUser? GetUserByTelegramUserId(long telegramUserId);
+        Task<ToDoUser>? GetUserByTelegramUserId(long telegramUserId, CancellationToken ct);
         //Добавление пользователя в список
-        void Add(ToDoUser user);
+        Task Add(ToDoUser user, CancellationToken ct);
     }
 }

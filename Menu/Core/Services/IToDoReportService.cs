@@ -7,6 +7,6 @@ namespace Menu.Core.Services
     internal interface IToDoReportService
     {
         //Возвращает статус всех задач пользователя
-        (int total, int completed, int active, DateTime generatedAt) GetUserStats(Guid userId);
+        Task<(int total, int completed, int active, DateTime generatedAt)> GetUserStats(Guid userId, CancellationToken ct);
     }
 }

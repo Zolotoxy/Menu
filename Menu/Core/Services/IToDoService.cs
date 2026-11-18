@@ -11,24 +11,24 @@ namespace Menu.Core.Services
     internal interface IToDoService
     {
         //Проверка на одинаковые задачи у пользователя
-        bool isDublicate (Guid userId, string name);
+        Task<bool> IsDublicate (Guid userId, string name, CancellationToken ct);
         //проверка максим кол-во задач
-        void isMaxCountTasks(ToDoUser user);
+        Task IsMaxCountTasks(ToDoUser user, CancellationToken ct);
         //проверка на максим длинну символов задачи
-        void isMaxLenghtTask(string? task);
+        Task IsMaxLenghtTask(string? task, CancellationToken ct);
         //Возвращает ToDoItem для UserId с любым статусом
-        IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId);
+        Task <IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct);
         //Возвращает ToDoItem для UserId со статусом Active
-        IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId);
+        Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct);
         //Добавить задачу
-        ToDoItem Add(ToDoUser user, string name);
+        Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct);
         //Отметить задачу "Выполнено"
-        void MarkCompleted(Guid id);
+        Task MarkCompleted(Guid id, CancellationToken ct);
         //Удалить задачу
-        void Delete(Guid id);
+        Task Delete(Guid id, CancellationToken ct);
         //Возвращает задачу по id
-        public ToDoItem? Get(Guid id);
+        Task<ToDoItem?> Get(Guid id, CancellationToken ct);
         //Возвращает все задачи пользвателя котор начинаются на namePrefix
-        IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix);
+        Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct);
     }
 }

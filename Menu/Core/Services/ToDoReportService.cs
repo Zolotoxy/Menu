@@ -8,19 +8,22 @@ namespace Menu.Core.Services
     internal class ToDoReportService : IToDoReportService
     {
         private IToDoRepository _toDoRepository;
+        //токен
+        private CancellationToken _ct;
 
-        public ToDoReportService(IToDoRepository toDoRepository)
+        public ToDoReportService(IToDoRepository toDoRepository, CancellationToken ct)
         {
             _toDoRepository = toDoRepository;
+            _ct = ct;
         }
         //Статистика по задачам пользователя
-        public (int total, int completed, int active, DateTime generatedAt) GetUserStats(Guid userId)
+        public async Task<(int total, int completed, int active, DateTime generatedAt)> GetUserStats(Guid userId, CancellationToken ct)
         {
             int total = 0, active =0, completed = 0;
             DateTime generatedAt;
 
             //Получение всех задач пользователя
-            var tasksUser = _toDoRepository.GetAllByUserId(userId);
+            var tasksUser = await _toDoRepository.GetAllByUserId(userId, _ct);
             foreach (var t in tasksUser)
             {
                 if (t.State == Entities.ToDoItemState.Completed)

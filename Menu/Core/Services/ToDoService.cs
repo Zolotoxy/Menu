@@ -23,57 +23,62 @@ namespace Menu.Core.Services
         public ToDoService(IToDoRepository itemRepository)
         {
             _itemRepository = itemRepository;
+   
         }
         //Проверка на дубликаты задач
-        public bool isDublicate(Guid userId, string name)
+        public async Task<bool> IsDublicate(Guid userId, string name, CancellationToken ct)
         {
-            return _itemRepository.ExistsByName(userId, name);
+            return await _itemRepository.ExistsByName(userId, name, ct);
         }
         //Добавить задачу
-        public ToDoItem Add(ToDoUser user, string name)
+        public async Task<ToDoItem> Add(ToDoUser user, string name, CancellationToken ct)
         {
-            if (isDublicate(user.UserId, name))
+            if (await IsDublicate(user.UserId, name, ct))
             {
                 throw new ArgumentException($"Задача \"{name}\" у пользователя с Id \"{user.UserId}\" существует.");
             }
             else
             {
                 var item = new ToDoItem(user, name);
-                _itemRepository.Add(item);
+                await _itemRepository.Add(item, ct);
                 return item;
             }
         }
         //удалить задачу по id
-        public void Delete(Guid id)
+        public async Task Delete(Guid id, CancellationToken ct)
         {
-            _itemRepository.Delete(id);
+            await _itemRepository.Delete(id, ct);
         }
         //Возвращает ToDoItem для UserId со статусом Active
-        public IReadOnlyList<ToDoItem> GetActiveByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetActiveByUserId(Guid userId, CancellationToken ct)
         {
-            return _itemRepository.GetActiveByUserId(userId);            
+            return await _itemRepository.GetActiveByUserId(userId, ct);            
         }
         //Возвращает ToDoItem для UserId с любым статусом
-        public IReadOnlyList<ToDoItem> GetAllByUserId(Guid userId)
+        public async Task<IReadOnlyList<ToDoItem>> GetAllByUserId(Guid userId, CancellationToken ct)
         {
-            return _itemRepository.GetAllByUserId(userId);
+            return await _itemRepository.GetAllByUserId(userId, ct);
         }
         //Отметить задачу "Выполнено"
-        public void MarkCompleted(Guid id)
+        public async Task MarkCompleted(Guid id, CancellationToken ct)
         {
-            var task = Get(id);
-            _itemRepository.Update(task);
+            var task = Get(id, ct);
+            await _itemRepository.Update(await task, ct);
         }
         //проверка максим кол-во задач
-        public void isMaxCountTasks(ToDoUser user)
+        public async Task IsMaxCountTasks(ToDoUser user, CancellationToken ct)
         {
-            if (_itemRepository.GetAllByUserId(user.UserId).Count >= MAX_TASKS)
+            ct.ThrowIfCancellationRequested();
+
+            var tasks = await _itemRepository.GetAllByUserId(user.UserId, ct);
+            if (tasks.Count >= MAX_TASKS)
             {
                 throw new ArgumentException($"Превышено максимальное количество задач равное: {MAX_TASKS}");
             }
+            //return Task.CompletedTask;
         }
         //проверка на максим длинну символов задачи
-        public void isMaxLenghtTask(string? task)
+        public async Task IsMaxLenghtTask(string? task, CancellationToken ct)
         {
             if (task?.Length >= MAX_LENGHT_TASK)
             {
@@ -81,9 +86,9 @@ namespace Menu.Core.Services
             }
         }
         //Возвращает задачу по id
-        public ToDoItem? Get(Guid id)
+        public async Task<ToDoItem?> Get(Guid id, CancellationToken ct)
         {
-            var item = _itemRepository.Get(id);
+            var item = await _itemRepository.Get(id, ct);
             if (item is not null)
             {
                 return item;
@@ -94,15 +99,15 @@ namespace Menu.Core.Services
             }
         }
 
-        public IReadOnlyList<ToDoItem> Find(ToDoUser user, string namePrefix)
+        public async Task<IReadOnlyList<ToDoItem>> Find(ToDoUser user, string namePrefix, CancellationToken ct)
         {
             if (user is null)
             {
                 throw new ArgumentNullException(nameof(user));
             }
 
-            return _itemRepository.Find(user.UserId,
-                                        item => item.Name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase));
+            return await _itemRepository.Find(user.UserId,
+                                        item => item.Name.StartsWith(namePrefix, StringComparison.OrdinalIgnoreCase), ct);
         }
     }
 }

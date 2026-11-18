@@ -15,18 +15,21 @@ namespace Menu
         {
             try
             {
+                using var cts = new CancellationTokenSource();
+
                 var userRepositiry = new InMemoryUserRepository();
                 var itemRepository = new InMemoryToDoRepository();
 
                 var userService = new UserService(userRepositiry);
                 var itemService = new ToDoService(itemRepository);
-                var reportService = new ToDoReportService(itemRepository);
+                var reportService = new ToDoReportService(itemRepository, cts.Token);
 
-                var handler = new UpdateHandler(userService, itemService, reportService);
+                
+                var handler = new UpdateHandler(userService, itemService, reportService, cts.Token);
 
                 var botClient = new ConsoleBotClient();
 
-                botClient.StartReceiving(handler);
+                botClient.StartReceiving(handler, cts.Token);
             }
 
             catch (Exception ex)
