@@ -193,7 +193,7 @@ namespace Menu.TelegramBot
         public async Task ExecuteInfoCommand(ITelegramBotClient botClient, Update update)
         {
             var name = _currentUser?.TelegramUserName ?? "Пользователь,";
-            await botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.4.0; Дата создания: 10.10.2026г.\n", _ct);
+            await botClient.SendMessage(update.Message.Chat, name + " Версия ПО: 1.4.1; Дата создания: 10.10.2026г.\n", _ct);
         }
         /// <summary>
         /// Выполнение команды Addtask
