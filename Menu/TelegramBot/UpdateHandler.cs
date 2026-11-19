@@ -40,8 +40,9 @@ namespace Menu.TelegramBot
             _reportService = reportService;
             _ct = ct;
         }
-        public async void HandleUpdateAsync(ITelegramBotClient botClient, Update update)
+        public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ct)
         {
+            await botClient.SendMessage(update.Message.Chat, $"Получил '{update.Message.Text}'", ct);
 
             try
             {
@@ -419,12 +420,6 @@ namespace Menu.TelegramBot
         {
             ;
         }
-
-        public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ct)
-        {
-            await botClient.SendMessage(update.Message.Chat, $"Получил '{update.Message.Text}'", ct);
-        }
-
         public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ct)
         {
             Console.WriteLine($"HandleError: {exception})");
